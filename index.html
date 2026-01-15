@@ -1,73 +1,13 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Luxe Digital & Dropship</title>
-    <meta name="description" content="Premium digital products and curated dropshipping items.">
-    <link rel="stylesheet" href="styles/main.css">
-</head>
-
-<body>
-    <header id="navbar">
-        <nav>
-            <div class="logo">LUXE</div>
-            <ul class="nav-links">
-                <li><a href="#hero">Home</a></li>
-                <li><a href="#digital">Digital</a></li>
-                <li><a href="#physical">Physical</a></li>
-                <li><a href="#cart">Cart</a></li>
-            </ul>
-        </nav>
-    </header>
-
-    <main>
-        <section id="hero">
-            <h1>Elevate Your Lifestyle</h1>
-            <p>Curated digital assets and premium physical goods.</p>
-            <button class="cta-btn">Shop Now</button>
-        </section>
-
-        <section id="digital" class="container section-padding">
-            <h2 class="section-title">Digital Assets</h2>
-            <div id="digital-products" class="product-grid">
-                <!-- Digital products rendered here -->
-            </div>
-        </section>
-
-        <section id="physical" class="container section-padding">
-            <h2 class="section-title">Physical Collection</h2>
-            <div id="physical-products" class="product-grid">
-                <!-- Physical products rendered here -->
-            </div>
-        </section>
-    </main>
-
-    <footer>
-        <p>&copy; 2024 Luxe Digital. All rights reserved.</p>
-    </footer>
-
-    <!-- Cart Sidebar -->
-    <div id="cart-sidebar" class="cart-sidebar">
-        <div class="cart-header">
-            <h2>Your Cart</h2>
-            <button id="close-cart" class="close-btn">&times;</button>
-        </div>
-        <div class="cart-items" id="cart-items">
-            <p class="empty-cart-msg">Your cart is empty.</p>
-        </div>
-        <div class="cart-footer">
-            <div class="cart-total">
-                <span>Total:</span>
-                <span id="cart-total-price">$0.00</span>
-            </div>
-            <button class="checkout-btn">Checkout</button>
-        </div>
-    </div>
-    <div id="cart-overlay" class="cart-overlay"></div>
-
-    <script src="scripts/main.js"></script>
-</body>
-
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>luxe-digital</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>

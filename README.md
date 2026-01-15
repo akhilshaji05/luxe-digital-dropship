@@ -1,45 +1,43 @@
-# Luxe Digital & Dropship Website
+# Luxe Digital & Dropship - React Edition
 
-## Setup
-1.  Open a terminal in this directory: `/Users/akhil/Documents/My project`
-2.  Install dependencies:
-    ```bash
-    npm install
-    ```
-3.  Start the server:
-    ```bash
-    npm start
-    ```
-4.  Open your browser to: `http://localhost:3000`
+This project has been rewritten in **React** using **Vite**, **Framer Motion**, and **Lucide React**.
 
 ## Features
--   **Public Site**: `http://localhost:3000/` (View products, Add to cart)
--   **Admin Panel**: `http://localhost:3000/admin.html` (Add new products to the catalog)
--   **Backend**: Node.js/Express server with `data/products.json` storage.
+- **Modern React Architecture**: Built for performance and scalability.
+- **Premium UI**: Glassmorphism, smooth animations, and high-quality typography.
+- **Smart Cart**: Animated cart sidebar with quantity controls.
+- **Dynamic Filtering**: Seamlessly switch between Digital and Physical collections.
 
-## GitHub Setup
-Since I could not run these commands for you, please run them in your terminal to initialize Git and push to GitHub:
+## Setup & Development
 
-1.  **Initialize Git:**
-    ```bash
-    git init
-    git add .
-    git commit -m "Initial commit"
-    ```
+1. **Install Dependencies**:
+   ```bash
+   npm install
+   ```
 
-2.  **Authenticate & Push:**
-    *   **Option A (If you have GitHub CLI `gh` installed):**
-        ```bash
-        gh auth login
-        gh repo create luxe-digital-dropship --public --source=. --remote=origin
-        git push -u origin main
-        ```
-    *   **Option B (Standard Git):**
-        1.  Create a new repository on GitHub.com named `luxe-digital-dropship`.
-        2.  Run:
-            ```bash
-            git remote add origin https://github.com/akhilshaji05/luxe-digital-dropship.git
-            git branch -M main
-            git push -u origin main
-            ```
-        *Note: You will need a Personal Access Token (PAT) instead of your password if prompted.*
+2. **Run Local Server**:
+   ```bash
+   npm run dev
+   ```
+   Open [http://localhost:5173](http://localhost:5173) to see your site.
+
+3. **Build for Production**:
+   ```bash
+   npm run build
+   ```
+
+## GitHub Integration
+
+To push these changes to your GitHub:
+
+1. **Commit Changes**:
+   ```bash
+   git add .
+   git commit -m "Rewrite project in React with premium UI"
+   ```
+
+2. **Push to GitHub**:
+   ```bash
+   git push origin main
+   ```
+   *Use your Personal Access Token if prompted for a password.*
