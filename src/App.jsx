@@ -154,16 +154,34 @@ function App() {
   }, [siteSettings]);
 
   useEffect(() => {
-    localStorage.setItem('luxe-orders', JSON.stringify(orders));
-  }, [orders]);
-
-  useEffect(() => {
-    localStorage.setItem('luxe-user', JSON.stringify(currentUser));
-  }, [currentUser]);
-
-  useEffect(() => {
     localStorage.setItem('luxe-customers', JSON.stringify(customers));
   }, [customers]);
+
+  // URL Routing Sync
+  useEffect(() => {
+    const path = window.location.pathname;
+    if (path === '/admin') setView('admin');
+    else if (path === '/track') setView('track');
+    else if (path === '/about') setView('about');
+    else if (path === '/contact') setView('contact');
+
+    const handlePopState = () => {
+      const newPath = window.location.pathname;
+      if (newPath === '/admin') setView('admin');
+      else if (newPath === '/') setView('shop');
+      // Add other routes as needed
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  useEffect(() => {
+    const path = view === 'shop' ? '/' : `/${view}`;
+    if (window.location.pathname !== path) {
+      window.history.pushState({}, '', path);
+    }
+  }, [view]);
 
   // Google Sheets Integration Logic
   const saveUserToSheets = async (userData) => {
