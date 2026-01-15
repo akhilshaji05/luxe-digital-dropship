@@ -154,6 +154,14 @@ function App() {
   }, [siteSettings]);
 
   useEffect(() => {
+    localStorage.setItem('luxe-orders', JSON.stringify(orders));
+  }, [orders]);
+
+  useEffect(() => {
+    localStorage.setItem('luxe-user', JSON.stringify(currentUser));
+  }, [currentUser]);
+
+  useEffect(() => {
     localStorage.setItem('luxe-customers', JSON.stringify(customers));
   }, [customers]);
 
@@ -164,12 +172,15 @@ function App() {
     else if (path === '/track') setView('track');
     else if (path === '/about') setView('about');
     else if (path === '/contact') setView('contact');
+    else setView('shop');
 
     const handlePopState = () => {
       const newPath = window.location.pathname;
       if (newPath === '/admin') setView('admin');
-      else if (newPath === '/') setView('shop');
-      // Add other routes as needed
+      else if (newPath === '/track') setView('track');
+      else if (newPath === '/about') setView('about');
+      else if (newPath === '/contact') setView('contact');
+      else setView('shop');
     };
 
     window.addEventListener('popstate', handlePopState);
