@@ -617,6 +617,13 @@ function App() {
                       >
                         Site Customization
                       </button>
+                      <button
+                        className={`tab-btn ${adminSubView === 'qikink-sync' ? 'active' : ''}`}
+                        onClick={() => setAdminSubView('qikink-sync')}
+                        style={{ background: 'none', border: 'none', color: adminSubView === 'qikink-sync' ? 'var(--accent-color)' : '#fff', cursor: 'pointer', fontWeight: 'bold' }}
+                      >
+                        🚀 Qikink Sync
+                      </button>
                     </div>
                   </div>
                   <button className="btn-secondary" onClick={() => setIsAdminAuthenticated(false)}>Logout</button>
@@ -666,9 +673,12 @@ function App() {
                           price: parseFloat(formData.get('price')),
                           salePrice: formData.get('salePrice') ? parseFloat(formData.get('salePrice')) : null, // New Field
                           tags: formData.get('tags') ? formData.get('tags').split(',').map(t => t.trim()) : [], // New Field
-                          weight: formData.get('weight'), // New Field
-                          dimensions: formData.get('dimensions'), // New Field
-                          downloadUrl: formData.get('downloadUrl'), // New Field
+                          weight: formData.get('weight'),
+                          dimensions: formData.get('dimensions'),
+                          downloadUrl: formData.get('downloadUrl'),
+                          qikinkProductId: formData.get('qikinkProductId'), // Qikink Integration
+                          qikinkVariantId: formData.get('qikinkVariantId'), // Qikink Integration
+                          fulfillmentType: formData.get('fulfillmentType') || 'self', // 'self' or 'qikink'
                           image: finalImage,
                           desc: formData.get('desc'),
                           fullDesc: formData.get('fullDesc'),
@@ -820,6 +830,31 @@ function App() {
                               <input name="downloadUrl" placeholder="https://drive.google.com/..." style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
                               <p style={{ fontSize: '0.7rem', opacity: 0.5, marginTop: '5px' }}>This link will be sent to the customer after purchase.</p>
                             </div>
+
+                            {/* QIKINK DROPSHIPPING INTEGRATION */}
+                            <div className="qikink-fields" style={{ marginTop: '20px', borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
+                              <h4 style={{ fontSize: '0.9rem', marginBottom: '10px', color: 'var(--accent-color)' }}>🚀 Qikink Dropshipping</h4>
+                              <div style={{ marginBottom: '15px' }}>
+                                <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Fulfillment Type</label>
+                                <select name="fulfillmentType" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }}>
+                                  <option value="self">Self Fulfilled</option>
+                                  <option value="qikink">Qikink Fulfillment</option>
+                                </select>
+                              </div>
+                              <div style={{ display: 'flex', gap: '20px', marginBottom: '15px' }}>
+                                <div style={{ flex: 1 }}>
+                                  <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Qikink Product ID</label>
+                                  <input name="qikinkProductId" placeholder="Optional - from Qikink dashboard" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                  <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Qikink Variant ID</label>
+                                  <input name="qikinkVariantId" placeholder="Optional - specific variant" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                                </div>
+                              </div>
+                              <p style={{ fontSize: '0.7rem', opacity: 0.5, background: 'rgba(112, 71, 235, 0.1)', padding: '10px', borderRadius: '5px', border: '1px solid rgba(112, 71, 235, 0.3)' }}>
+                                💡 <strong>How to use:</strong> Get Product/Variant IDs from your Qikink dashboard. Orders for Qikink products will be automatically forwarded for fulfillment.
+                              </p>
+                            </div>
                           </div>
 
                           {/* MEDIA TAB */}
@@ -905,7 +940,7 @@ function App() {
                               <div style={{ fontWeight: 'bold' }}>${order.total.toFixed(2)}</div>
                               <div style={{ fontSize: '0.8rem', opacity: 0.6 }}>{order.items.length} items</div>
                             </div>
-                            <div>
+                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                               <span className={`status-badge ${order.status.toLowerCase().replace(' ', '-')}`} style={{
                                 padding: '5px 10px',
                                 borderRadius: '50px',
@@ -915,6 +950,17 @@ function App() {
                               }}>
                                 {order.status}
                               </span>
+                              {order.hasQikinkItems && (
+                                <span style={{
+                                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                  color: '#fff',
+                                  padding: '4px 8px',
+                                  borderRadius: '4px',
+                                  fontSize: '0.65rem',
+                                  fontWeight: 'bold',
+                                  textTransform: 'uppercase'
+                                }}>🚀 Qikink ({order.qikinkItems?.length || 0})</span>
+                              )}
                             </div>
                             <div style={{ display: 'flex', gap: '10px' }}>
                               <select
@@ -990,7 +1036,7 @@ function App() {
                       </div>
                     )}
                   </div>
-                ) : (
+                ) : adminSubView === 'settings' ? (
                   <div className="site-settings-card" style={{ background: 'var(--surface-color)', padding: '40px', borderRadius: '20px', border: '1px solid var(--border-color)' }}>
                     <h3 style={{ marginBottom: '30px' }}>Global Site Settings</h3>
                     <div className="settings-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px' }}>
@@ -1236,11 +1282,143 @@ function App() {
                     </div>
                     <button className="btn-primary" style={{ marginTop: '30px', width: 'auto' }} onClick={() => alert("Changes applied successfully.")}>Save Deployment Configuration</button>
                   </div>
-                )
+                ) : adminSubView === 'qikink-sync' ? (
+                  <div className="settings-panel" style={{ maxWidth: '900px', margin: '0 auto' }}>
+                    <h3 style={{ marginBottom: '30px', color: 'var(--accent-color)' }}>🚀 Qikink Product Sync</h3>
+
+                    <div className="settings-section" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', padding: '20px', borderRadius: '10px', marginBottom: '30px' }}>
+                      <h4 style={{ color: '#fff', marginBottom: '10px' }}>Quick Import from Qikink</h4>
+                      <p style={{ fontSize: '0.9rem', opacity: 0.9, color: '#fff', marginBottom: '20px' }}>
+                        Copy product details from your Qikink dashboard and paste below to add multiple products quickly.
+                      </p>
+
+                      <form onSubmit={(e) => {
+                        e.preventDefault();
+                        const formData = new FormData(e.target);
+                        const bulkData = formData.get('bulkImport');
+
+                        if (!bulkData) {
+                          alert("Please enter product data");
+                          return;
+                        }
+
+                        try {
+                          // Parse comma-separated or line-separated format
+                          const lines = bulkData.split('\n').filter(line => line.trim());
+                          let imported = 0;
+
+                          lines.forEach(line => {
+                            const parts = line.split(',').map(p => p.trim());
+                            if (parts.length >= 3) {
+                              addProduct({
+                                name: parts[0],
+                                price: parseFloat(parts[1]) || 0,
+                                image: parts[2] || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400',
+                                desc: parts[3] || 'Premium Qikink product',
+                                fullDesc: parts[4] || 'High-quality custom product fulfilled by Qikink',
+                                category: 'physical',
+                                type: parts[5] || 'Custom',
+                                qikinkProductId: parts[6] || '',
+                                qikinkVariantId: parts[7] || '',
+                                fulfillmentType: 'qikink',
+                                stock: 999,
+                                status: 'Active',
+                                brand: 'Qikink',
+                                sku: `QK-${Date.now()}-${imported}`,
+                                sizes: parts[8] ? parts[8].split('|') : ['S', 'M', 'L', 'XL'],
+                                colors: parts[9] ? parts[9].split('|') : ['Black', 'White']
+                              });
+                              imported++;
+                            }
+                          });
+
+                          e.target.reset();
+                          alert(`✅ Successfully imported ${imported} products from Qikink!`);
+                        } catch (error) {
+                          alert("Error parsing product data: " + error.message);
+                        }
+                      }}>
+                        <textarea
+                          name="bulkImport"
+                          placeholder={"Format: Name, Price, Image URL, Description, Full Desc, Type, Product ID, Variant ID, Sizes, Colors\n\nExample:\nCustom T-Shirt, 599, https://..., Cool tee, Premium quality tee, T-Shirt, 12345, 67890, S|M|L|XL, Black|White|Red\nCustom Hoodie, 1299, https://..., Warm hoodie, Cozy hoodie, Hoodie, 12346, 67891, M|L|XL, Black|Navy"}
+                          style={{
+                            width: '100%',
+                            minHeight: '200px',
+                            padding: '15px',
+                            background: 'rgba(255,255,255,0.1)',
+                            border: '2px dashed rgba(255,255,255,0.3)',
+                            color: '#fff',
+                            borderRadius: '8px',
+                            fontSize: '0.85rem',
+                            fontFamily: 'monospace',
+                            resize: 'vertical'
+                          }}
+                        />
+                        <button type="submit" className="btn-secondary" style={{ marginTop: '15px', width: '100%', background: '#fff', color: '#764ba2', fontWeight: 'bold' }}>
+                          Import Products
+                        </button>
+                      </form>
+                    </div>
+
+                    <div className="settings-section">
+                      <h4 style={{ color: 'var(--accent-color)', marginBottom: '15px' }}>Manual Quick Add</h4>
+                      <p style={{ fontSize: '0.8rem', opacity: 0.6, marginBottom: '20px' }}>
+                        Add a single product quickly with minimal details. Fill in more details later.
+                      </p>
+
+                      <form onSubmit={(e) => {
+                        e.preventDefault();
+                        const formData = new FormData(e.target);
+
+                        addProduct({
+                          name: formData.get('name'),
+                          price: parseFloat(formData.get('price')),
+                          image: formData.get('image') || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400',
+                          desc: formData.get('desc') || 'Premium Qikink product',
+                          fullDesc: formData.get('desc') || 'High-quality custom product',
+                          category: 'physical',
+                          type: formData.get('type') || 'Custom',
+                          qikinkProductId: formData.get('qikinkProductId'),
+                          qikinkVariantId: formData.get('qikinkVariantId'),
+                          fulfillmentType: 'qikink',
+                          stock: 999,
+                          status: 'Active',
+                          brand: 'Qikink',
+                          sku: `QK-${Date.now()}`,
+                          sizes: ['S', 'M', 'L', 'XL'],
+                          colors: ['Black', 'White']
+                        });
+
+                        e.target.reset();
+                        alert("✅ Product added! Edit details in Inventory tab.");
+                      }} style={{ display: 'grid', gap: '15px', gridTemplateColumns: '1fr 1fr' }}>
+                        <input name="name" placeholder="Product Name *" required style={{ padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                        <input name="price" type="number" step="0.01" placeholder="Price *" required style={{ padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                        <input name="image" placeholder="Image URL" style={{ padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px', gridColumn: '1 / -1' }} />
+                        <input name="desc" placeholder="Short Description" style={{ padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px', gridColumn: '1 / -1' }} />
+                        <input name="type" placeholder="Type (T-Shirt, Hoodie...)" style={{ padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                        <input name="qikinkProductId" placeholder="Qikink Product ID" style={{ padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                        <input name="qikinkVariantId" placeholder="Qikink Variant ID" style={{ padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px', gridColumn: '1 / -1' }} />
+                        <button type="submit" className="btn-primary" style={{ gridColumn: '1 / -1' }}>Add Qikink Product</button>
+                      </form>
+                    </div>
+
+                    <div className="settings-section" style={{ background: 'rgba(112, 71, 235, 0.1)', border: '1px solid rgba(112, 71, 235, 0.3)', padding: '20px', borderRadius: '10px' }}>
+                      <h4 style={{ color: 'var(--accent-color)', marginBottom: '10px' }}>💡 How to Use</h4>
+                      <ul style={{ fontSize: '0.85rem', opacity: 0.8, lineHeight: '1.8', paddingLeft: '20px' }}>
+                        <li><strong>Bulk Import:</strong> Copy product data from Qikink catalog (CSV format) and paste above</li>
+                        <li><strong>Quick Add:</strong> Add one product at a time for testing</li>
+                        <li><strong>Edit Later:</strong> Go to Inventory tab to add images, descriptions, variants</li>
+                        <li><strong>Qikink IDs:</strong> Find in your Qikink dashboard product details</li>
+                        <li><strong>Auto-Sync (Future):</strong> We'll add Qikink API integration for automatic sync</li>
+                      </ul>
+                    </div>
+                  </div>
+                ) : null
                 }
-              </div >
+              </div>
             )}
-          </div >
+          </div>
         ) : !currentUser ? (
           <div className="auth-gate container section-padding">
             <div className="auth-card">
@@ -1512,6 +1690,7 @@ function App() {
                         )}
                         {product.type && <span className="type-badge" style={{ position: 'absolute', top: '10px', left: '10px', background: 'var(--accent-color)', color: '#000', padding: '4px 10px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 'bold', zIndex: 10, textTransform: 'uppercase' }}>{product.type}</span>}
                         {product.salePrice && <span className="sale-badge" style={{ position: 'absolute', top: '40px', left: '10px', background: '#ff4444', color: '#fff', padding: '4px 8px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 'bold', zIndex: 10, textTransform: 'uppercase' }}>SALE</span>}
+                        {product.fulfillmentType === 'qikink' && <span className="qikink-badge" style={{ position: 'absolute', top: product.salePrice ? '70px' : '40px', left: '10px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: '#fff', padding: '4px 8px', borderRadius: '4px', fontSize: '0.65rem', fontWeight: 'bold', zIndex: 10, textTransform: 'uppercase', letterSpacing: '0.5px' }}>🚀 Qikink</span>}
                         <img src={product.image} alt={product.name} />
                         <div className="card-overlay">
                           <span className="view-details">Quick View</span>
@@ -1789,25 +1968,74 @@ function App() {
                   </div>
                   <button className="checkout-btn" onClick={() => {
                     const newOrderId = 'LUX-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+
+                    // Detect Qikink products in cart
+                    const qikinkItems = cart.filter(item => {
+                      const product = products.find(p => p.id === item.id);
+                      return product && product.fulfillmentType === 'qikink';
+                    });
+
                     const newOrder = {
                       id: newOrderId,
                       items: [...cart],
                       total: total,
                       status: 'Confirmed',
-                      date: new Date().toISOString()
+                      date: new Date().toISOString(),
+                      hasQikinkItems: qikinkItems.length > 0,
+                      qikinkItems: qikinkItems.map(item => {
+                        const product = products.find(p => p.id === item.id);
+                        return {
+                          name: item.name,
+                          qty: item.qty,
+                          qikinkProductId: product.qikinkProductId,
+                          qikinkVariantId: product.qikinkVariantId,
+                          size: item.selectedSize,
+                          color: item.selectedColor
+                        };
+                      })
                     };
+
                     setOrders([newOrder, ...orders]);
                     setCart([]);
                     setIsCartOpen(false);
-                    alert(`Order Placed Successfully!\n\nYour Vault ID: ${newOrderId}\n\nYou can track your items in the Track section.`);
 
+                    // Show different message for Qikink orders
+                    if (qikinkItems.length > 0) {
+                      alert(`Order Placed Successfully! 🎉\n\nYour Order ID: ${newOrderId}\n\n⚡ ${qikinkItems.length} item(s) will be fulfilled by Qikink\n\nProcessing: 2-3 business days\nYou can track your order in the Track section.`);
+                    } else {
+                      alert(`Order Placed Successfully!\n\nYour Vault ID: ${newOrderId}\n\nYou can track your items in the Track section.`);
+                    }
+
+                    // Send to Google Sheets
                     saveUserToSheets({
                       type: 'Order Placed',
                       orderId: newOrderId,
                       total: total,
                       items: cart.length,
+                      hasQikink: qikinkItems.length > 0,
+                      qikinkCount: qikinkItems.length,
                       date: new Date().toISOString()
                     });
+
+                    // Send Qikink email notification (if admin email configured)
+                    if (qikinkItems.length > 0 && siteSettings.contactEmail) {
+                      const emailBody = `
+NEW QIKINK ORDER: ${newOrderId}
+
+${qikinkItems.map(item => `
+- ${item.name} (Qty: ${item.qty})
+  Qikink Product ID: ${item.qikinkProductId || 'N/A'}
+  Variant ID: ${item.qikinkVariantId || 'N/A'}
+`).join('')}
+
+Total: $${total.toFixed(2)}
+
+Action Required: Process this order on Qikink dashboard.
+                      `.trim();
+
+                      // Note: In production, this would trigger actual email via backend
+                      console.log('📧 Qikink Order Email:', emailBody);
+                    }
                   }}>Proceed to Checkout</button>
                 </div>
               )}
