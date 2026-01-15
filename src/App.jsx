@@ -588,7 +588,7 @@ function App() {
                 <div className="dashboard-header">
                   <div>
                     <h2>Control Center</h2>
-                    <div className="admin-tabs" style={{ display: 'flex', gap: '20px', marginTop: '10px' }}>
+                    <div className="admin-tabs" style={{ display: 'flex', gap: '20px', marginTop: '10px', flexWrap: 'wrap' }}>
                       <button
                         className={`tab-btn ${adminSubView === 'products' ? 'active' : ''}`}
                         onClick={() => setAdminSubView('products')}
