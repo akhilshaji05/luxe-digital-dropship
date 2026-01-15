@@ -619,10 +619,18 @@ function App() {
                       </button>
                       <button
                         className={`tab-btn ${adminSubView === 'qikink-sync' ? 'active' : ''}`}
-                        onClick={() => setAdminSubView('qikink-sync')}
-                        style={{ background: 'none', border: 'none', color: adminSubView === 'qikink-sync' ? 'var(--accent-color)' : '#fff', cursor: 'pointer', fontWeight: 'bold' }}
+                        onClick={() => { console.log('Clicked Qikink tab'); setAdminSubView('qikink-sync'); }}
+                        style={{
+                          background: adminSubView === 'qikink-sync' ? 'var(--accent-color)' : 'rgba(255, 255, 255, 0.1)',
+                          border: '1px solid var(--accent-color)',
+                          color: '#fff',
+                          cursor: 'pointer',
+                          fontWeight: 'bold',
+                          padding: '10px 20px',
+                          borderRadius: '5px'
+                        }}
                       >
-                        🚀 Qikink Sync
+                        🚀 Qikink Sync (New)
                       </button>
                     </div>
                   </div>
