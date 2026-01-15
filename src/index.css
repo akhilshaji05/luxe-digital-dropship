@@ -7,6 +7,7 @@
   --surface-color: #1a1a1a;
   --border-color: #333333;
   --font-main: 'Outfit', sans-serif;
+  --btn-radius: 0px;
 }
 
 * {
