@@ -73,10 +73,12 @@ const PRODUCTS = [
 ];
 
 function App() {
-  const [view, setView] = useState('shop'); // 'shop', 'admin', or 'contact'
+  const [view, setView] = useState('shop'); // 'shop', 'admin', 'contact', 'about', or 'track'
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
   const [adminSubView, setAdminSubView] = useState('products'); // 'products' or 'settings'
+  const [orderId, setOrderId] = useState('');
+  const [trackingResult, setTrackingResult] = useState(null);
 
   const initialSettings = {
     logoText: "LUXE",
@@ -93,7 +95,10 @@ function App() {
     heroBg: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=2000&auto=format&fit=crop",
     instagram: "https://instagram.com",
     twitter: "https://twitter.com",
-    linkedin: "https://linkedin.com"
+    linkedin: "https://linkedin.com",
+    mission: "To redefine the digital lifestyle by providing exclusive, high-performance assets and premium physical goods.",
+    vision: "To become the premier global destination for curators of excellence in both the digital and physical realms.",
+    aboutStory: "Luxe started with a simple belief: that the tools we use and the objects we surround ourselves with should reflect our standards. We curate the best so you don't have to."
   };
 
   const [siteSettings, setSiteSettings] = useState(() => {
@@ -211,6 +216,8 @@ function App() {
           <div className="nav-links">
             <a href="#hero" onClick={() => setView('shop')}>Home</a>
             <a href="#shop" onClick={() => setView('shop')}>Shop</a>
+            <button className="nav-link-btn" onClick={() => setView('about')}>About</button>
+            <button className="nav-link-btn" onClick={() => setView('track')}>Track</button>
             <button className="nav-link-btn" onClick={() => setView('contact')}>Contact</button>
             <button className="admin-link" onClick={() => setView('admin')}>Admin</button>
             <button className="cart-trigger" onClick={() => setIsCartOpen(true)}>
@@ -424,11 +431,112 @@ function App() {
                     </div>
 
                   </div>
+                  <div className="settings-section">
+                    <h4 style={{ color: 'var(--accent-color)', marginBottom: '15px', textTransform: 'uppercase', fontSize: '0.8rem' }}>About Us (Mission & Vision)</h4>
+                    <div className="form-group" style={{ marginBottom: '10px' }}>
+                      <label style={{ display: 'block', fontSize: '0.8rem', opacity: 0.6, marginBottom: '5px' }}>Our Mission</label>
+                      <textarea
+                        style={{ width: '100%', height: '80px', padding: '10px', background: '#000', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '8px', resize: 'none' }}
+                        value={siteSettings.mission}
+                        onChange={(e) => setSiteSettings({ ...siteSettings, mission: e.target.value })}
+                      />
+                    </div>
+                    <div className="form-group" style={{ marginBottom: '10px' }}>
+                      <label style={{ display: 'block', fontSize: '0.8rem', opacity: 0.6, marginBottom: '5px' }}>Our Vision</label>
+                      <textarea
+                        style={{ width: '100%', height: '80px', padding: '10px', background: '#000', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '8px', resize: 'none' }}
+                        value={siteSettings.vision}
+                        onChange={(e) => setSiteSettings({ ...siteSettings, vision: e.target.value })}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label style={{ display: 'block', fontSize: '0.8rem', opacity: 0.6, marginBottom: '5px' }}>Our Story</label>
+                      <textarea
+                        style={{ width: '100%', height: '80px', padding: '10px', background: '#000', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '8px', resize: 'none' }}
+                        value={siteSettings.aboutStory}
+                        onChange={(e) => setSiteSettings({ ...siteSettings, aboutStory: e.target.value })}
+                      />
+                    </div>
+                  </div>
                   <button className="btn-primary" style={{ marginTop: '30px', width: 'auto' }} onClick={() => alert("Changes applied successfully.")}>Save Deployment Configuration</button>
                 </div>
               )}
             </div>
           )}
+        </div>
+      ) : view === 'about' ? (
+        <div className="about-page container section-padding">
+          <div className="about-header text-center">
+            <span className="badge">Our Philosophy</span>
+            <h1>Crafting Digital & Physical Excellence</h1>
+          </div>
+          <div className="about-grid">
+            <div className="about-card story-card">
+              <h3>The Story</h3>
+              <p>{siteSettings.aboutStory}</p>
+            </div>
+            <div className="mission-vision-grid">
+              <div className="about-card">
+                <h3>Mission</h3>
+                <p>{siteSettings.mission}</p>
+              </div>
+              <div className="about-card">
+                <h3>Vision</h3>
+                <p>{siteSettings.vision}</p>
+              </div>
+            </div>
+          </div>
+          <div className="about-cta section-padding text-center">
+            <h2>Join the Future of Commerce</h2>
+            <button className="btn-primary" onClick={() => setView('shop')}>Explore The Collection</button>
+          </div>
+        </div>
+      ) : view === 'track' ? (
+        <div className="track-page container section-padding">
+          <div className="track-header text-center">
+            <h1>Track Your Selection</h1>
+            <p>Enter your 12-digit vault ID to locate your luxury shipment.</p>
+          </div>
+          <div className="track-card-wrap">
+            <div className="track-card">
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                setTrackingResult({
+                  status: "In Transit",
+                  location: "Los Angeles Distribution Center",
+                  estimated: "January 24, 2026"
+                });
+              }}>
+                <div className="form-group">
+                  <input
+                    type="text"
+                    placeholder="Enter Tracking ID (e.g. LUX-9922001)"
+                    value={orderId}
+                    onChange={(e) => setOrderId(e.target.value)}
+                    required
+                  />
+                </div>
+                <button type="submit" className="btn-primary full-width">Locate Package</button>
+              </form>
+
+              {trackingResult && (
+                <div className="tracking-info-box" style={{ marginTop: '30px', animation: 'fadeIn 0.4s ease-out' }}>
+                  <div className="status-item">
+                    <span>Status:</span>
+                    <strong>{trackingResult.status}</strong>
+                  </div>
+                  <div className="status-item">
+                    <span>Current Location:</span>
+                    <strong>{trackingResult.location}</strong>
+                  </div>
+                  <div className="status-item">
+                    <span>Estimated Delivery:</span>
+                    <strong>{trackingResult.estimated}</strong>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       ) : view === 'contact' ? (
         <div className="contact-page container section-padding">
