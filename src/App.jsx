@@ -76,9 +76,14 @@ function App() {
   const [view, setView] = useState('shop'); // 'shop', 'admin', 'contact', 'about', or 'track'
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
-  const [adminSubView, setAdminSubView] = useState('products'); // 'products' or 'settings'
+  const [adminSubView, setAdminSubView] = useState('products'); // 'products', 'settings', or 'orders'
   const [orderId, setOrderId] = useState('');
   const [trackingResult, setTrackingResult] = useState(null);
+
+  const [orders, setOrders] = useState(() => {
+    const saved = localStorage.getItem('luxe-orders');
+    return saved ? JSON.parse(saved) : [];
+  });
 
   const initialSettings = {
     logoText: "LUXE",
@@ -134,6 +139,10 @@ function App() {
     localStorage.setItem('luxe-settings', JSON.stringify(siteSettings));
     document.documentElement.style.setProperty('--accent-color', siteSettings.accentColor);
   }, [siteSettings]);
+
+  useEffect(() => {
+    localStorage.setItem('luxe-orders', JSON.stringify(orders));
+  }, [orders]);
 
   // Google Sheets Integration Logic
   const saveUserToSheets = async (userData) => {
@@ -257,6 +266,13 @@ function App() {
                       Inventory
                     </button>
                     <button
+                      className={`tab-btn ${adminSubView === 'orders' ? 'active' : ''}`}
+                      onClick={() => setAdminSubView('orders')}
+                      style={{ background: 'none', border: 'none', color: adminSubView === 'orders' ? 'var(--accent-color)' : '#fff', cursor: 'pointer', fontWeight: 'bold' }}
+                    >
+                      Orders
+                    </button>
+                    <button
                       className={`tab-btn ${adminSubView === 'settings' ? 'active' : ''}`}
                       onClick={() => setAdminSubView('settings')}
                       style={{ background: 'none', border: 'none', color: adminSubView === 'settings' ? 'var(--accent-color)' : '#fff', cursor: 'pointer', fontWeight: 'bold' }}
@@ -312,6 +328,56 @@ function App() {
                         </div>
                       ))}
                     </div>
+                  </div>
+                </div>
+              ) : adminSubView === 'orders' ? (
+                <div className="admin-orders-cms">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+                    <h3>Order Management ({orders.length})</h3>
+                    <button className="delete-btn" onClick={() => { if (confirm("Clear all order history?")) setOrders([]); }}>Clear History</button>
+                  </div>
+                  <div className="table-scroll" style={{ background: '#000' }}>
+                    {orders.length === 0 ? <p style={{ padding: '20px', opacity: 0.5 }}>No orders placed yet.</p> : (
+                      orders.map(order => (
+                        <div key={order.id} className="admin-order-row" style={{ padding: '20px', borderBottom: '1px solid var(--border-color)', display: 'grid', gridTemplateColumns: '1fr 1.5fr 1fr 1.5fr', alignItems: 'center', gap: '20px' }}>
+                          <div>
+                            <strong style={{ color: 'var(--accent-color)' }}>{order.id}</strong>
+                            <div style={{ fontSize: '0.8rem', opacity: 0.5 }}>{new Date(order.date).toLocaleDateString()}</div>
+                          </div>
+                          <div>
+                            <div style={{ fontWeight: 'bold' }}>${order.total.toFixed(2)}</div>
+                            <div style={{ fontSize: '0.8rem', opacity: 0.6 }}>{order.items.length} items</div>
+                          </div>
+                          <div>
+                            <span className={`status-badge ${order.status.toLowerCase().replace(' ', '-')}`} style={{
+                              padding: '5px 10px',
+                              borderRadius: '50px',
+                              fontSize: '0.7rem',
+                              background: order.status === 'Delivered' ? 'rgba(0,255,0,0.1)' : 'rgba(255,255,255,0.05)',
+                              color: order.status === 'Delivered' ? '#00ff00' : '#fff'
+                            }}>
+                              {order.status}
+                            </span>
+                          </div>
+                          <div style={{ display: 'flex', gap: '10px' }}>
+                            <select
+                              value={order.status}
+                              onChange={(e) => {
+                                setOrders(orders.map(o => o.id === order.id ? { ...o, status: e.target.value } : o));
+                              }}
+                              style={{ background: 'var(--bg-color)', border: '1px solid var(--border-color)', color: '#fff', padding: '5px', borderRadius: '5px', fontSize: '0.8rem' }}
+                            >
+                              <option value="Confirmed">Confirmed</option>
+                              <option value="Processing">Processing</option>
+                              <option value="Shipping">Shipping</option>
+                              <option value="In Transit">In Transit</option>
+                              <option value="Delivered">Delivered</option>
+                            </select>
+                            <button className="delete-btn" onClick={() => setOrders(orders.filter(o => o.id !== order.id))}>X</button>
+                          </div>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </div>
               ) : (
@@ -501,11 +567,17 @@ function App() {
             <div className="track-card">
               <form onSubmit={(e) => {
                 e.preventDefault();
-                setTrackingResult({
-                  status: "In Transit",
-                  location: "Los Angeles Distribution Center",
-                  estimated: "January 24, 2026"
-                });
+                const found = orders.find(o => o.id.toUpperCase() === orderId.toUpperCase());
+                if (found) {
+                  setTrackingResult({
+                    status: found.status,
+                    location: found.status === 'Delivered' ? "Final Destination" : (found.status === 'Confirmed' ? "Order Received" : "Logistics Hub"),
+                    estimated: "Calculating..."
+                  });
+                } else {
+                  alert("Order ID not found in our vault.");
+                  setTrackingResult(null);
+                }
               }}>
                 <div className="form-group">
                   <input
@@ -762,9 +834,22 @@ function App() {
                   <span>${total.toFixed(2)}</span>
                 </div>
                 <button className="checkout-btn" onClick={() => {
-                  alert("Proceeding to secure checkout...");
+                  const newOrderId = 'LUX-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+                  const newOrder = {
+                    id: newOrderId,
+                    items: [...cart],
+                    total: total,
+                    status: 'Confirmed',
+                    date: new Date().toISOString()
+                  };
+                  setOrders([newOrder, ...orders]);
+                  setCart([]);
+                  setIsCartOpen(false);
+                  alert(`Order Placed Successfully!\n\nYour Vault ID: ${newOrderId}\n\nYou can track your items in the Track section.`);
+
                   saveUserToSheets({
-                    type: 'Checkout Attempt',
+                    type: 'Order Placed',
+                    orderId: newOrderId,
                     total: total,
                     items: cart.length,
                     date: new Date().toISOString()

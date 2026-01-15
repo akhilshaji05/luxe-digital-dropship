@@ -1139,4 +1139,59 @@
   .about-header h1 {
     font-size: 3rem;
   }
+
+  .admin-order-row {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+}
+
+/* Admin Order CMS Styles */
+.admin-order-row {
+  transition: 0.3s;
+}
+
+.admin-order-row:hover {
+  background: rgba(255, 255, 255, 0.02) !important;
+}
+
+.status-badge {
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.status-badge.confirmed {
+  background: rgba(52, 152, 219, 0.1);
+  color: #3498db;
+}
+
+.status-badge.processing {
+  background: rgba(241, 196, 15, 0.1);
+  color: #f1c40f;
+}
+
+.status-badge.shipping {
+  background: rgba(155, 89, 182, 0.1);
+  color: #9b59b2;
+}
+
+.status-badge.in-transit {
+  background: rgba(230, 126, 34, 0.1);
+  color: #e67e22;
+}
+
+.status-badge.delivered {
+  background: rgba(46, 204, 113, 0.1);
+  color: #2ecc71;
+}
+
+.admin-orders-cms select {
+  cursor: pointer;
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.admin-orders-cms select:focus {
+  border-color: var(--accent-color);
 }
