@@ -91,6 +91,7 @@ function App() {
   });
 
   const [authMode, setAuthMode] = useState('login'); // 'login' or 'signup'
+  const [editingCustomer, setEditingCustomer] = useState(null);
 
   const [orders, setOrders] = useState(() => {
     const saved = localStorage.getItem('luxe-orders');
@@ -281,6 +282,27 @@ function App() {
     setCurrentUser(null);
     setView('shop');
     setIsAdminAuthenticated(false);
+  };
+
+  const deleteCustomer = (email) => {
+    if (confirm("Are you sure you want to delete this customer? This action cannot be undone.")) {
+      setCustomers(customers.filter(c => c.email !== email));
+    }
+  };
+
+  const updateCustomer = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const updated = {
+      ...editingCustomer,
+      name: formData.get('name'),
+      email: formData.get('email'),
+      phone: formData.get('phone')
+    };
+
+    setCustomers(customers.map(c => c.email === editingCustomer.email ? updated : c));
+    setEditingCustomer(null);
+    alert("Customer profiles updated successfully.");
   };
 
   return (
@@ -474,16 +496,46 @@ function App() {
                   <div className="table-scroll" style={{ background: '#000' }}>
                     {customers.length === 0 ? <p style={{ padding: '20px', opacity: 0.5 }}>No registered users yet.</p> : (
                       customers.map(c => (
-                        <div key={c.email} className="admin-user-row" style={{ padding: '20px', borderBottom: '1px solid var(--border-color)', display: 'grid', gridTemplateColumns: '1.2fr 1.5fr 1.2fr 1fr 1fr', alignItems: 'center', gap: '20px' }}>
+                        <div key={c.email} className="admin-user-row" style={{ padding: '20px', borderBottom: '1px solid var(--border-color)', display: 'grid', gridTemplateColumns: '1fr 1.5fr 1fr 1.5fr 0.5fr 1.5fr', alignItems: 'center', gap: '15px' }}>
                           <div style={{ fontWeight: 'bold' }}>{c.name}</div>
                           <div style={{ opacity: 0.7 }}>{c.email}</div>
                           <div style={{ opacity: 0.7 }}>{c.phone || 'N/A'}</div>
                           <div style={{ fontSize: '0.8rem', opacity: 0.5 }}>{new Date(c.signupDate).toLocaleDateString()}</div>
                           <div style={{ fontSize: '0.6rem', color: 'var(--accent-color)' }}>{c.gdprStamp}</div>
+                          <div style={{ display: 'flex', gap: '10px' }}>
+                            <button className="btn-secondary" style={{ padding: '5px 10px', fontSize: '0.7rem' }} onClick={() => setEditingCustomer(c)}>Edit</button>
+                            <button className="delete-btn" style={{ padding: '5px 10px', fontSize: '0.7rem' }} onClick={() => deleteCustomer(c.email)}>Delete</button>
+                          </div>
                         </div>
                       ))
                     )}
                   </div>
+
+                  {editingCustomer && (
+                    <div className="modal-overlay open" style={{ zIndex: 2000 }}>
+                      <div className="admin-edit-card" style={{ background: 'var(--surface-color)', padding: '40px', borderRadius: '30px', border: '1px solid var(--border-color)', width: '100%', maxWidth: '400px' }}>
+                        <h3 style={{ marginBottom: '20px' }}>Edit Customer Profile</h3>
+                        <form onSubmit={updateCustomer}>
+                          <div className="form-group" style={{ marginBottom: '15px' }}>
+                            <label style={{ fontSize: '0.8rem', opacity: 0.6 }}>Full Name</label>
+                            <input name="name" defaultValue={editingCustomer.name} style={{ width: '100%', padding: '12px', background: '#000', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '8px' }} required />
+                          </div>
+                          <div className="form-group" style={{ marginBottom: '15px' }}>
+                            <label style={{ fontSize: '0.8rem', opacity: 0.6 }}>Email Address</label>
+                            <input name="email" defaultValue={editingCustomer.email} style={{ width: '100%', padding: '12px', background: '#000', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '8px' }} required />
+                          </div>
+                          <div className="form-group" style={{ marginBottom: '25px' }}>
+                            <label style={{ fontSize: '0.8rem', opacity: 0.6 }}>Mobile Number</label>
+                            <input name="phone" defaultValue={editingCustomer.phone} style={{ width: '100%', padding: '12px', background: '#000', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '8px' }} required />
+                          </div>
+                          <div style={{ display: 'flex', gap: '10px' }}>
+                            <button type="submit" className="btn-primary full-width">Update Profile</button>
+                            <button type="button" className="btn-secondary" onClick={() => setEditingCustomer(null)}>Cancel</button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="site-settings-card" style={{ background: 'var(--surface-color)', padding: '40px', borderRadius: '20px', border: '1px solid var(--border-color)' }}>
