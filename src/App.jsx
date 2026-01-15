@@ -645,6 +645,16 @@ function App() {
                         // Use preview as fallback if URL/File logic fails or if preview is already set by file input
                         if (!finalImage && imagePreview) finalImage = imagePreview;
 
+                        // Custom Validation
+                        const name = formData.get('name');
+                        const price = formData.get('price');
+                        const desc = formData.get('desc');
+
+                        if (!name) { alert("Please enter a Product Name (Overview)"); setActiveProductTab('overview'); return; }
+                        if (!desc) { alert("Please enter a Tagline (Overview)"); setActiveProductTab('overview'); return; }
+                        if (!price) { alert("Please enter a Base Price (Pricing)"); setActiveProductTab('pricing'); return; }
+                        if (!finalImage) { alert("Please provide an Image (Media)"); setActiveProductTab('media'); return; }
+
                         addProduct({
                           name: formData.get('name'),
                           brand: formData.get('brand'),
@@ -689,176 +699,167 @@ function App() {
                         <div style={{ minHeight: '300px' }}>
 
                           {/* OVERVIEW TAB */}
-                          {activeProductTab === 'overview' && (
-                            <div className="form-section animate-fade">
-                              <div style={{ display: 'flex', gap: '20px', marginBottom: '15px' }}>
-                                <div style={{ flex: 2 }}>
-                                  <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Product Name</label>
-                                  <input name="name" placeholder="e.g. Ultra-Luxe Hoodie" required style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                  <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Brand / Vendor</label>
-                                  <input name="brand" placeholder="e.g. Gucci" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
-                                </div>
+                          <div className="form-section animate-fade" style={{ display: activeProductTab === 'overview' ? 'block' : 'none' }}>
+                            <div style={{ display: 'flex', gap: '20px', marginBottom: '15px' }}>
+                              <div style={{ flex: 2 }}>
+                                <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Product Name</label>
+                                <input name="name" placeholder="e.g. Ultra-Luxe Hoodie" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
                               </div>
-                              <div style={{ marginBottom: '15px' }}>
-                                <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Short Tagline</label>
-                                <input name="desc" placeholder="A brief hook..." required style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
-                              </div>
-                              <div style={{ marginBottom: '15px' }}>
-                                <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Full Description</label>
-                                <textarea name="fullDesc" placeholder="Detailed product story..." required style={{ width: '100%', height: '120px', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px', resize: 'none' }} />
-                              </div>
-                              <div>
-                                <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Search Tags (SEO)</label>
-                                <input name="tags" placeholder="Comma separated (e.g. summer, sale, cotton)" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                              <div style={{ flex: 1 }}>
+                                <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Brand / Vendor</label>
+                                <input name="brand" placeholder="e.g. Gucci" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
                               </div>
                             </div>
-                          )}
+                            <div style={{ marginBottom: '15px' }}>
+                              <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Short Tagline</label>
+                              <input name="desc" placeholder="A brief hook..." style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                            </div>
+                            <div style={{ marginBottom: '15px' }}>
+                              <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Full Description</label>
+                              <textarea name="fullDesc" placeholder="Detailed product story..." style={{ width: '100%', height: '120px', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px', resize: 'none' }} />
+                            </div>
+                            <div>
+                              <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Search Tags (SEO)</label>
+                              <input name="tags" placeholder="Comma separated (e.g. summer, sale, cotton)" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                            </div>
+                          </div>
 
                           {/* PRICING TAB */}
-                          {activeProductTab === 'pricing' && (
-                            <div className="form-section animate-fade">
-                              <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
-                                <div style={{ flex: 1 }}>
-                                  <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Base Price ($)</label>
-                                  <input name="price" type="number" step="0.01" placeholder="0.00" required style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                  <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Sale Price ($)</label>
-                                  <input name="salePrice" type="number" step="0.01" placeholder="Optional" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
-                                  <p style={{ fontSize: '0.7rem', opacity: 0.5, marginTop: '5px' }}>If set, original price will be crossed out.</p>
-                                </div>
+                          <div className="form-section animate-fade" style={{ display: activeProductTab === 'pricing' ? 'block' : 'none' }}>
+                            <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
+                              <div style={{ flex: 1 }}>
+                                <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Base Price ($)</label>
+                                <input name="price" type="number" step="0.01" placeholder="0.00" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
                               </div>
-                              <div>
-                                <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Cost per Item ($)</label>
-                                <input name="cost" type="number" step="0.01" placeholder="Internal use only" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
-                                <p style={{ fontSize: '0.7rem', opacity: 0.5, marginTop: '5px' }}>Customers won't see this.</p>
+                              <div style={{ flex: 1 }}>
+                                <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Sale Price ($)</label>
+                                <input name="salePrice" type="number" step="0.01" placeholder="Optional" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                                <p style={{ fontSize: '0.7rem', opacity: 0.5, marginTop: '5px' }}>If set, original price will be crossed out.</p>
                               </div>
                             </div>
-                          )}
+                            <div>
+                              <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Cost per Item ($)</label>
+                              <input name="cost" type="number" step="0.01" placeholder="Internal use only" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                              <p style={{ fontSize: '0.7rem', opacity: 0.5, marginTop: '5px' }}>Customers won't see this.</p>
+                            </div>
+                          </div>
 
                           {/* INVENTORY TAB */}
-                          {activeProductTab === 'inventory' && (
-                            <div className="form-section animate-fade">
-                              <div style={{ display: 'flex', gap: '20px', marginBottom: '15px' }}>
-                                <div style={{ flex: 1 }}>
-                                  <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>SKU (Stock Keeping Unit)</label>
-                                  <input name="sku" placeholder="e.g. PROD-001" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                  <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Barcode (ISBN/UPC)</label>
-                                  <input name="barcode" placeholder="Optional" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
-                                </div>
+                          <div className="form-section animate-fade" style={{ display: activeProductTab === 'inventory' ? 'block' : 'none' }}>
+                            <div style={{ display: 'flex', gap: '20px', marginBottom: '15px' }}>
+                              <div style={{ flex: 1 }}>
+                                <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>SKU (Stock Keeping Unit)</label>
+                                <input name="sku" placeholder="e.g. PROD-001" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
                               </div>
-                              <div style={{ display: 'flex', gap: '20px', marginBottom: '15px' }}>
-                                <div style={{ flex: 1 }}>
-                                  <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Stock Quantity</label>
-                                  <input name="stock" type="number" placeholder="0" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                  <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Status</label>
-                                  <select name="status" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }}>
-                                    <option value="Active">Active</option>
-                                    <option value="Draft">Draft</option>
-                                    <option value="Sold Out">Sold Out</option>
-                                    <option value="Archived">Archived</option>
-                                  </select>
-                                </div>
+                              <div style={{ flex: 1 }}>
+                                <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Barcode (ISBN/UPC)</label>
+                                <input name="barcode" placeholder="Optional" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
                               </div>
-                              <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '15px' }}>
-                                <h4 style={{ fontSize: '0.9rem', marginBottom: '10px' }}>Options</h4>
-                                <div style={{ display: 'flex', gap: '20px' }}>
-                                  <div style={{ flex: 1 }}>
-                                    <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Sizes</label>
-                                    <input name="sizes" placeholder="S, M, L" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
-                                  </div>
-                                  <div style={{ flex: 1 }}>
-                                    <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Colors</label>
-                                    <input name="colors" placeholder="Red, Blue" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
-                                  </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '20px', marginBottom: '15px' }}>
+                              <div style={{ flex: 1 }}>
+                                <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Stock Quantity</label>
+                                <input name="stock" type="number" placeholder="0" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                              </div>
+                              <div style={{ flex: 1 }}>
+                                <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Status</label>
+                                <select name="status" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }}>
+                                  <option value="Active">Active</option>
+                                  <option value="Draft">Draft</option>
+                                  <option value="Sold Out">Sold Out</option>
+                                  <option value="Archived">Archived</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '15px' }}>
+                              <h4 style={{ fontSize: '0.9rem', marginBottom: '10px' }}>Options</h4>
+                              <div style={{ display: 'flex', gap: '20px' }}>
+                                <div style={{ flex: 1 }}>
+                                  <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Sizes</label>
+                                  <input name="sizes" placeholder="S, M, L" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                  <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Colors</label>
+                                  <input name="colors" placeholder="Red, Blue" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
                                 </div>
                               </div>
                             </div>
-                          )}
+                          </div>
 
                           {/* DELIVERY TAB */}
-                          {activeProductTab === 'delivery' && (
-                            <div className="form-section animate-fade">
-                              <div style={{ marginBottom: '20px' }}>
-                                <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Product Type</label>
-                                <div style={{ display: 'flex', gap: '10px' }}>
-                                  <select name="category" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }}>
-                                    <option value="physical">Physical Product</option>
-                                    <option value="digital">Digital Download</option>
-                                  </select>
-                                  <input name="type" placeholder="Category Type (e.g. Shorts)" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
-                                </div>
-                              </div>
-
-                              <div className="physical-fields">
-                                <h4 style={{ fontSize: '0.9rem', marginBottom: '10px', color: 'var(--accent-color)' }}>Shipping Info (Physical Only)</h4>
-                                <div style={{ display: 'flex', gap: '20px' }}>
-                                  <div style={{ flex: 1 }}>
-                                    <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Weight (kg)</label>
-                                    <input name="weight" type="number" step="0.1" placeholder="0.0" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
-                                  </div>
-                                  <div style={{ flex: 1 }}>
-                                    <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Dimensions (LxWxH)</label>
-                                    <input name="dimensions" placeholder="10x10x5 cm" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
-                                  </div>
-                                </div>
-                              </div>
-
-                              <div className="digital-fields" style={{ marginTop: '20px', borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
-                                <h4 style={{ fontSize: '0.9rem', marginBottom: '10px', color: 'var(--accent-color)' }}>Digital Fulfillment (Digital Only)</h4>
-                                <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Download / Access Link</label>
-                                <input name="downloadUrl" placeholder="https://drive.google.com/..." style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
-                                <p style={{ fontSize: '0.7rem', opacity: 0.5, marginTop: '5px' }}>This link will be sent to the customer after purchase.</p>
+                          {/* DELIVERY TAB */}
+                          <div className="form-section animate-fade" style={{ display: activeProductTab === 'delivery' ? 'block' : 'none' }}>
+                            <div style={{ marginBottom: '20px' }}>
+                              <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Product Type</label>
+                              <div style={{ display: 'flex', gap: '10px' }}>
+                                <select name="category" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }}>
+                                  <option value="physical">Physical Product</option>
+                                  <option value="digital">Digital Download</option>
+                                </select>
+                                <input name="type" placeholder="Category Type (e.g. Shorts)" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
                               </div>
                             </div>
-                          )}
+
+                            <div className="physical-fields">
+                              <h4 style={{ fontSize: '0.9rem', marginBottom: '10px', color: 'var(--accent-color)' }}>Shipping Info (Physical Only)</h4>
+                              <div style={{ display: 'flex', gap: '20px' }}>
+                                <div style={{ flex: 1 }}>
+                                  <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Weight (kg)</label>
+                                  <input name="weight" type="number" step="0.1" placeholder="0.0" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                  <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Dimensions (LxWxH)</label>
+                                  <input name="dimensions" placeholder="10x10x5 cm" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="digital-fields" style={{ marginTop: '20px', borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
+                              <h4 style={{ fontSize: '0.9rem', marginBottom: '10px', color: 'var(--accent-color)' }}>Digital Fulfillment (Digital Only)</h4>
+                              <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Download / Access Link</label>
+                              <input name="downloadUrl" placeholder="https://drive.google.com/..." style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                              <p style={{ fontSize: '0.7rem', opacity: 0.5, marginTop: '5px' }}>This link will be sent to the customer after purchase.</p>
+                            </div>
+                          </div>
 
                           {/* MEDIA TAB */}
-                          {activeProductTab === 'media' && (
-                            <div className="form-section animate-fade">
-                              <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
-                                <button type="button" className={`filter-btn ${productUploadType === 'url' ? 'active' : ''}`} onClick={() => setProductUploadType('url')}>Image URL</button>
-                                <button type="button" className={`filter-btn ${productUploadType === 'file' ? 'active' : ''}`} onClick={() => setProductUploadType('file')}>File Upload</button>
+                          <div className="form-section animate-fade" style={{ display: activeProductTab === 'media' ? 'block' : 'none' }}>
+                            <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+                              <button type="button" className={`filter-btn ${productUploadType === 'url' ? 'active' : ''}`} onClick={() => setProductUploadType('url')}>Image URL</button>
+                              <button type="button" className={`filter-btn ${productUploadType === 'file' ? 'active' : ''}`} onClick={() => setProductUploadType('file')}>File Upload</button>
+                            </div>
+
+                            {productUploadType === 'url' ? (
+                              <input name="imageUrl" placeholder="https://..." onChange={(e) => setImagePreview(e.target.value)} style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                            ) : (
+                              <div style={{ padding: '40px', border: '2px dashed var(--border-color)', borderRadius: '10px', textAlign: 'center', background: 'rgba(255,255,255,0.02)' }}>
+                                <input type="file" accept="image/*" id="file-upload-input" style={{ display: 'none' }} onChange={(e) => {
+                                  const file = e.target.files[0];
+                                  if (file) {
+                                    const reader = new FileReader();
+                                    reader.onload = (ev) => setImagePreview(ev.target.result);
+                                    reader.readAsDataURL(file);
+                                  }
+                                }} />
+                                <label htmlFor="file-upload-input" style={{ cursor: 'pointer' }}>
+                                  <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📂</div>
+                                  <span style={{ color: 'var(--accent-color)', fontWeight: 'bold' }}>Click to Upload</span>
+                                  <p style={{ marginTop: '10px', opacity: 0.6, fontSize: '0.8rem' }}>JPG, PNG, GIF up to 10MB</p>
+                                </label>
                               </div>
+                            )}
 
-                              {productUploadType === 'url' ? (
-                                <input name="imageUrl" placeholder="https://..." onChange={(e) => setImagePreview(e.target.value)} required style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
-                              ) : (
-                                <div style={{ padding: '40px', border: '2px dashed var(--border-color)', borderRadius: '10px', textAlign: 'center', background: 'rgba(255,255,255,0.02)' }}>
-                                  <input type="file" accept="image/*" id="file-upload-input" style={{ display: 'none' }} onChange={(e) => {
-                                    const file = e.target.files[0];
-                                    if (file) {
-                                      const reader = new FileReader();
-                                      reader.onload = (ev) => setImagePreview(ev.target.result);
-                                      reader.readAsDataURL(file);
-                                    }
-                                  }} />
-                                  <label htmlFor="file-upload-input" style={{ cursor: 'pointer' }}>
-                                    <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📂</div>
-                                    <span style={{ color: 'var(--accent-color)', fontWeight: 'bold' }}>Click to Upload</span>
-                                    <p style={{ marginTop: '10px', opacity: 0.6, fontSize: '0.8rem' }}>JPG, PNG, GIF up to 10MB</p>
-                                  </label>
-                                </div>
-                              )}
-
-                              <div style={{ marginTop: '30px' }}>
-                                <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '10px' }}>Live Preview</label>
-                                <div className="image-preview-box" style={{ width: '100%', height: '300px', background: 'rgba(0,0,0,0.3)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: imagePreview ? '2px solid var(--accent-color)' : '1px solid var(--border-color)' }}>
-                                  {imagePreview ? (
-                                    <img src={imagePreview} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                                  ) : (
-                                    <span style={{ opacity: 0.4, fontSize: '0.8rem' }}>No image selected</span>
-                                  )}
-                                </div>
+                            <div style={{ marginTop: '30px' }}>
+                              <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '10px' }}>Live Preview</label>
+                              <div className="image-preview-box" style={{ width: '100%', height: '300px', background: 'rgba(0,0,0,0.3)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: imagePreview ? '2px solid var(--accent-color)' : '1px solid var(--border-color)' }}>
+                                {imagePreview ? (
+                                  <img src={imagePreview} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                                ) : (
+                                  <span style={{ opacity: 0.4, fontSize: '0.8rem' }}>No image selected</span>
+                                )}
                               </div>
                             </div>
-                          )}
+                          </div>
 
                         </div>
 
