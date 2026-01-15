@@ -653,6 +653,18 @@ function App() {
                       </div>
                     </div>
 
+                    <div className="settings-section">
+                      <h4 style={{ color: 'var(--accent-color)', marginBottom: '15px', textTransform: 'uppercase', fontSize: '0.8rem' }}>Data Management</h4>
+                      <p style={{ fontSize: '0.8rem', opacity: 0.6, marginBottom: '15px' }}>Manage user profiles, GDPR compliance records, and contact information.</p>
+                      <button
+                        className="btn-secondary full-width"
+                        onClick={() => setAdminSubView('customers')}
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}
+                      >
+                        Open Customer Vault
+                      </button>
+                    </div>
+
                   </div>
                   <div className="settings-section">
                     <h4 style={{ color: 'var(--accent-color)', marginBottom: '15px', textTransform: 'uppercase', fontSize: '0.8rem' }}>About Us (Mission & Vision)</h4>
