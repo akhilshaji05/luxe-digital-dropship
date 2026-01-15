@@ -105,6 +105,7 @@ function App() {
   const [authMode, setAuthMode] = useState('login'); // 'login' or 'signup'
   const [editingCustomer, setEditingCustomer] = useState(null);
   const [productUploadType, setProductUploadType] = useState('url'); // 'url' or 'file'
+  const [activeProductTab, setActiveProductTab] = useState('overview'); // 'overview', 'pricing', 'inventory', 'delivery', 'media'
   const [imagePreview, setImagePreview] = useState(''); // Live preview for admin upload
   const [wishlist, setWishlist] = useState(() => {
     const saved = localStorage.getItem('luxe-wishlist');
@@ -653,6 +654,11 @@ function App() {
                           category: formData.get('category'),
                           type: formData.get('type'),
                           price: parseFloat(formData.get('price')),
+                          salePrice: formData.get('salePrice') ? parseFloat(formData.get('salePrice')) : null, // New Field
+                          tags: formData.get('tags') ? formData.get('tags').split(',').map(t => t.trim()) : [], // New Field
+                          weight: formData.get('weight'), // New Field
+                          dimensions: formData.get('dimensions'), // New Field
+                          downloadUrl: formData.get('downloadUrl'), // New Field
                           image: finalImage,
                           desc: formData.get('desc'),
                           fullDesc: formData.get('fullDesc'),
@@ -664,91 +670,203 @@ function App() {
                         alert("Product Added Successfully!");
                       }}>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '30px' }}>
-                          <div>
-                            <div className="form-section" style={{ marginBottom: '20px' }}>
-                              <h4 style={{ fontSize: '0.9rem', color: 'var(--accent-color)', marginBottom: '10px', textTransform: 'uppercase' }}>1. Essentials</h4>
-                              <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
-                                <input name="name" placeholder="Product Name" required style={{ flex: 2 }} />
-                                <input name="brand" placeholder="Brand / Vendor" style={{ flex: 1 }} />
-                              </div>
-                              <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
-                                <input name="price" type="number" step="0.01" placeholder="Price ($)" required style={{ flex: 1 }} />
-                                <select name="status" required style={{ flex: 1 }}>
-                                  <option value="Active">Active</option>
-                                  <option value="Draft">Draft</option>
-                                  <option value="Sold Out">Sold Out</option>
-                                </select>
-                              </div>
-                              <input name="desc" placeholder="Short tagline (e.g. 'Premium Hoodie')" required style={{ marginBottom: '10px' }} />
-                              <textarea name="fullDesc" placeholder="Full product description..." required style={{ height: '80px' }} />
-                            </div>
-
-                            <div className="form-section" style={{ marginBottom: '20px', borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
-                              <h4 style={{ fontSize: '0.9rem', color: 'var(--accent-color)', marginBottom: '10px', textTransform: 'uppercase' }}>2. Inventory & Classification</h4>
-                              <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
-                                <input name="sku" placeholder="SKU (e.g. HOOD-BLK-001)" required style={{ flex: 1 }} />
-                                <input name="stock" type="number" placeholder="Stock Qty" required style={{ flex: 1 }} />
-                              </div>
-                              <div style={{ display: 'flex', gap: '10px' }}>
-                                <select name="category" required style={{ flex: 1 }}>
-                                  <option value="digital">Digital Asset</option>
-                                  <option value="physical">Physical Good</option>
-                                </select>
-                                <input name="type" placeholder="Type (e.g. Hoodie)" style={{ flex: 1 }} />
-                              </div>
-                            </div>
-
-                            <div className="form-section" style={{ marginBottom: '20px', borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
-                              <h4 style={{ fontSize: '0.9rem', color: 'var(--accent-color)', marginBottom: '10px', textTransform: 'uppercase' }}>3. Variants</h4>
-                              <div style={{ display: 'flex', gap: '10px' }}>
-                                <div style={{ flex: 1 }}>
-                                  <label style={{ fontSize: '0.8rem', opacity: 0.7, display: 'block', marginBottom: '5px' }}>Sizes</label>
-                                  <input name="sizes" placeholder="S, M, L, XL" />
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                  <label style={{ fontSize: '0.8rem', opacity: 0.7, display: 'block', marginBottom: '5px' }}>Colors</label>
-                                  <input name="colors" placeholder="Red, Black, Gold" />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Media Sidebar */}
-                          <div className="media-sidebar">
-                            <h4 style={{ fontSize: '0.9rem', color: 'var(--accent-color)', marginBottom: '10px', textTransform: 'uppercase' }}>4. Media</h4>
-                            <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
-                              <button type="button" className={`filter-btn ${productUploadType === 'url' ? 'active' : ''}`} onClick={() => setProductUploadType('url')}>URL</button>
-                              <button type="button" className={`filter-btn ${productUploadType === 'file' ? 'active' : ''}`} onClick={() => setProductUploadType('file')}>Upload</button>
-                            </div>
-
-                            {productUploadType === 'url' ? (
-                              <input name="imageUrl" placeholder="https://..." onChange={(e) => setImagePreview(e.target.value)} required />
-                            ) : (
-                              <div style={{ padding: '20px', border: '1px dashed var(--border-color)', borderRadius: 'var(--btn-radius)', textAlign: 'center' }}>
-                                <input type="file" accept="image/*" onChange={(e) => {
-                                  const file = e.target.files[0];
-                                  if (file) {
-                                    const reader = new FileReader();
-                                    reader.onload = (ev) => setImagePreview(ev.target.result);
-                                    reader.readAsDataURL(file);
-                                  }
-                                }} />
-                                <p style={{ fontSize: '0.8rem', marginTop: '10px', opacity: 0.6 }}>Supports JPG, PNG, WEBP</p>
-                              </div>
-                            )}
-
-                            <div className="image-preview-box" style={{ marginTop: '20px', width: '100%', aspectRatio: '1/1', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: imagePreview ? '2px solid var(--accent-color)' : '1px solid var(--border-color)' }}>
-                              {imagePreview ? (
-                                <img src={imagePreview} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                              ) : (
-                                <span style={{ opacity: 0.4, fontSize: '0.8rem' }}>No Image Preview</span>
-                              )}
-                            </div>
-                          </div>
+                        {/* Product Editor Tabs */}
+                        <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px', overflowX: 'auto' }}>
+                          {['overview', 'pricing', 'inventory', 'delivery', 'media'].map(tab => (
+                            <button type="button" key={tab} onClick={() => setActiveProductTab(tab)} style={{
+                              background: 'none',
+                              border: 'none',
+                              color: activeProductTab === tab ? 'var(--accent-color)' : '#fff',
+                              fontWeight: activeProductTab === tab ? 'bold' : 'normal',
+                              padding: '5px 10px',
+                              cursor: 'pointer',
+                              textTransform: 'capitalize'
+                            }}>{tab}</button>
+                          ))}
                         </div>
 
-                        <button type="submit" className="btn-primary full-width" style={{ marginTop: '20px' }}>Add to Catalog</button>
+                        {/* Tab Content */}
+                        <div style={{ minHeight: '300px' }}>
+
+                          {/* OVERVIEW TAB */}
+                          {activeProductTab === 'overview' && (
+                            <div className="form-section animate-fade">
+                              <div style={{ display: 'flex', gap: '20px', marginBottom: '15px' }}>
+                                <div style={{ flex: 2 }}>
+                                  <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Product Name</label>
+                                  <input name="name" placeholder="e.g. Ultra-Luxe Hoodie" required style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                  <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Brand / Vendor</label>
+                                  <input name="brand" placeholder="e.g. Gucci" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                                </div>
+                              </div>
+                              <div style={{ marginBottom: '15px' }}>
+                                <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Short Tagline</label>
+                                <input name="desc" placeholder="A brief hook..." required style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                              </div>
+                              <div style={{ marginBottom: '15px' }}>
+                                <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Full Description</label>
+                                <textarea name="fullDesc" placeholder="Detailed product story..." required style={{ width: '100%', height: '120px', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px', resize: 'none' }} />
+                              </div>
+                              <div>
+                                <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Search Tags (SEO)</label>
+                                <input name="tags" placeholder="Comma separated (e.g. summer, sale, cotton)" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                              </div>
+                            </div>
+                          )}
+
+                          {/* PRICING TAB */}
+                          {activeProductTab === 'pricing' && (
+                            <div className="form-section animate-fade">
+                              <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
+                                <div style={{ flex: 1 }}>
+                                  <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Base Price ($)</label>
+                                  <input name="price" type="number" step="0.01" placeholder="0.00" required style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                  <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Sale Price ($)</label>
+                                  <input name="salePrice" type="number" step="0.01" placeholder="Optional" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                                  <p style={{ fontSize: '0.7rem', opacity: 0.5, marginTop: '5px' }}>If set, original price will be crossed out.</p>
+                                </div>
+                              </div>
+                              <div>
+                                <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Cost per Item ($)</label>
+                                <input name="cost" type="number" step="0.01" placeholder="Internal use only" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                                <p style={{ fontSize: '0.7rem', opacity: 0.5, marginTop: '5px' }}>Customers won't see this.</p>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* INVENTORY TAB */}
+                          {activeProductTab === 'inventory' && (
+                            <div className="form-section animate-fade">
+                              <div style={{ display: 'flex', gap: '20px', marginBottom: '15px' }}>
+                                <div style={{ flex: 1 }}>
+                                  <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>SKU (Stock Keeping Unit)</label>
+                                  <input name="sku" placeholder="e.g. PROD-001" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                  <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Barcode (ISBN/UPC)</label>
+                                  <input name="barcode" placeholder="Optional" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                                </div>
+                              </div>
+                              <div style={{ display: 'flex', gap: '20px', marginBottom: '15px' }}>
+                                <div style={{ flex: 1 }}>
+                                  <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Stock Quantity</label>
+                                  <input name="stock" type="number" placeholder="0" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                  <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Status</label>
+                                  <select name="status" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }}>
+                                    <option value="Active">Active</option>
+                                    <option value="Draft">Draft</option>
+                                    <option value="Sold Out">Sold Out</option>
+                                    <option value="Archived">Archived</option>
+                                  </select>
+                                </div>
+                              </div>
+                              <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '15px' }}>
+                                <h4 style={{ fontSize: '0.9rem', marginBottom: '10px' }}>Options</h4>
+                                <div style={{ display: 'flex', gap: '20px' }}>
+                                  <div style={{ flex: 1 }}>
+                                    <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Sizes</label>
+                                    <input name="sizes" placeholder="S, M, L" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                                  </div>
+                                  <div style={{ flex: 1 }}>
+                                    <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Colors</label>
+                                    <input name="colors" placeholder="Red, Blue" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* DELIVERY TAB */}
+                          {activeProductTab === 'delivery' && (
+                            <div className="form-section animate-fade">
+                              <div style={{ marginBottom: '20px' }}>
+                                <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Product Type</label>
+                                <div style={{ display: 'flex', gap: '10px' }}>
+                                  <select name="category" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }}>
+                                    <option value="physical">Physical Product</option>
+                                    <option value="digital">Digital Download</option>
+                                  </select>
+                                  <input name="type" placeholder="Category Type (e.g. Shorts)" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                                </div>
+                              </div>
+
+                              <div className="physical-fields">
+                                <h4 style={{ fontSize: '0.9rem', marginBottom: '10px', color: 'var(--accent-color)' }}>Shipping Info (Physical Only)</h4>
+                                <div style={{ display: 'flex', gap: '20px' }}>
+                                  <div style={{ flex: 1 }}>
+                                    <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Weight (kg)</label>
+                                    <input name="weight" type="number" step="0.1" placeholder="0.0" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                                  </div>
+                                  <div style={{ flex: 1 }}>
+                                    <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Dimensions (LxWxH)</label>
+                                    <input name="dimensions" placeholder="10x10x5 cm" style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="digital-fields" style={{ marginTop: '20px', borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
+                                <h4 style={{ fontSize: '0.9rem', marginBottom: '10px', color: 'var(--accent-color)' }}>Digital Fulfillment (Digital Only)</h4>
+                                <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '5px' }}>Download / Access Link</label>
+                                <input name="downloadUrl" placeholder="https://drive.google.com/..." style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                                <p style={{ fontSize: '0.7rem', opacity: 0.5, marginTop: '5px' }}>This link will be sent to the customer after purchase.</p>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* MEDIA TAB */}
+                          {activeProductTab === 'media' && (
+                            <div className="form-section animate-fade">
+                              <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+                                <button type="button" className={`filter-btn ${productUploadType === 'url' ? 'active' : ''}`} onClick={() => setProductUploadType('url')}>Image URL</button>
+                                <button type="button" className={`filter-btn ${productUploadType === 'file' ? 'active' : ''}`} onClick={() => setProductUploadType('file')}>File Upload</button>
+                              </div>
+
+                              {productUploadType === 'url' ? (
+                                <input name="imageUrl" placeholder="https://..." onChange={(e) => setImagePreview(e.target.value)} required style={{ width: '100%', padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                              ) : (
+                                <div style={{ padding: '40px', border: '2px dashed var(--border-color)', borderRadius: '10px', textAlign: 'center', background: 'rgba(255,255,255,0.02)' }}>
+                                  <input type="file" accept="image/*" id="file-upload-input" style={{ display: 'none' }} onChange={(e) => {
+                                    const file = e.target.files[0];
+                                    if (file) {
+                                      const reader = new FileReader();
+                                      reader.onload = (ev) => setImagePreview(ev.target.result);
+                                      reader.readAsDataURL(file);
+                                    }
+                                  }} />
+                                  <label htmlFor="file-upload-input" style={{ cursor: 'pointer' }}>
+                                    <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📂</div>
+                                    <span style={{ color: 'var(--accent-color)', fontWeight: 'bold' }}>Click to Upload</span>
+                                    <p style={{ marginTop: '10px', opacity: 0.6, fontSize: '0.8rem' }}>JPG, PNG, GIF up to 10MB</p>
+                                  </label>
+                                </div>
+                              )}
+
+                              <div style={{ marginTop: '30px' }}>
+                                <label style={{ fontSize: '0.8rem', opacity: 0.6, display: 'block', marginBottom: '10px' }}>Live Preview</label>
+                                <div className="image-preview-box" style={{ width: '100%', height: '300px', background: 'rgba(0,0,0,0.3)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: imagePreview ? '2px solid var(--accent-color)' : '1px solid var(--border-color)' }}>
+                                  {imagePreview ? (
+                                    <img src={imagePreview} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                                  ) : (
+                                    <span style={{ opacity: 0.4, fontSize: '0.8rem' }}>No image selected</span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '30px', borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
+                          <button type="button" className="btn-secondary" onClick={() => e.target.reset()} style={{ marginRight: '10px' }}>Reset</button>
+                          <button type="submit" className="btn-primary" style={{ minWidth: '200px' }}>Save Product</button>
+                        </div>
+
                       </form>
                     </div>
 
@@ -1392,6 +1510,7 @@ function App() {
                           </button>
                         )}
                         {product.type && <span className="type-badge" style={{ position: 'absolute', top: '10px', left: '10px', background: 'var(--accent-color)', color: '#000', padding: '4px 10px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 'bold', zIndex: 10, textTransform: 'uppercase' }}>{product.type}</span>}
+                        {product.salePrice && <span className="sale-badge" style={{ position: 'absolute', top: '40px', left: '10px', background: '#ff4444', color: '#fff', padding: '4px 8px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 'bold', zIndex: 10, textTransform: 'uppercase' }}>SALE</span>}
                         <img src={product.image} alt={product.name} />
                         <div className="card-overlay">
                           <span className="view-details">Quick View</span>
@@ -1400,7 +1519,16 @@ function App() {
                       <div className="card-info">
                         <div className="card-meta">
                           <span className="category-tag">{product.category}</span>
-                          <span className="price">${product.price.toFixed(2)}</span>
+                          <div className="price-wrap">
+                            {product.salePrice ? (
+                              <>
+                                <span className="original-price" style={{ textDecoration: 'line-through', opacity: 0.5, fontSize: '0.8rem', marginRight: '5px' }}>${product.price.toFixed(2)}</span>
+                                <span className="sale-price" style={{ color: 'var(--accent-color)', fontWeight: 'bold' }}>${product.salePrice.toFixed(2)}</span>
+                              </>
+                            ) : (
+                              <span className="price">${product.price.toFixed(2)}</span>
+                            )}
+                          </div>
                         </div>
                         <h3>{product.name}</h3>
                         <div className="card-footer-btns">
@@ -1444,7 +1572,43 @@ function App() {
                         </div>
                       </div>
 
-                      <p className="modal-price">${selectedProduct.price}</p>
+                      <div className="modal-price-box" style={{ marginBottom: '20px' }}>
+                        {selectedProduct.salePrice ? (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                            <h2 className="modal-price" style={{ margin: 0, color: 'var(--accent-color)' }}>${selectedProduct.salePrice.toFixed(2)}</h2>
+                            <span style={{ textDecoration: 'line-through', opacity: 0.5, fontSize: '1.2rem' }}>${selectedProduct.price.toFixed(2)}</span>
+                            <span style={{ background: 'rgba(255, 68, 68, 0.1)', color: '#ff4444', padding: '2px 8px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 'bold' }}>
+                              {Math.round(((selectedProduct.price - selectedProduct.salePrice) / selectedProduct.price) * 100)}% OFF
+                            </span>
+                          </div>
+                        ) : (
+                          <p className="modal-price">${selectedProduct.price}</p>
+                        )}
+                      </div>
+
+                      <div className="modal-tags" style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', marginBottom: '20px' }}>
+                        {selectedProduct.tags && selectedProduct.tags.map(tag => (
+                          <span key={tag} style={{ fontSize: '0.7rem', padding: '4px 8px', borderRadius: '20px', background: 'rgba(255,255,255,0.05)', color: 'var(--text-secondary)' }}>
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+
+                      <div className="fulfillment-badge" style={{ marginBottom: '20px', padding: '10px', background: 'rgba(255,255,255,0.03)', borderRadius: '5px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontSize: '1.2rem' }}>
+                          {selectedProduct.category === 'digital' ? '⚡' : '📦'}
+                        </span>
+                        <div>
+                          <strong style={{ fontSize: '0.9rem', display: 'block' }}>
+                            {selectedProduct.category === 'digital' ? 'Instant Delivery' : 'Global Shipping'}
+                          </strong>
+                          <span style={{ fontSize: '0.8rem', opacity: 0.7 }}>
+                            {selectedProduct.category === 'digital'
+                              ? 'Access your files immediately after secure payment.'
+                              : 'Ships within 2-3 business days in premium packaging.'}
+                          </span>
+                        </div>
+                      </div>
                       <p className="modal-desc">{selectedProduct.fullDesc || selectedProduct.desc}</p>
 
                       {selectedProduct.sizes && selectedProduct.sizes.length > 0 && (
