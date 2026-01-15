@@ -17,6 +17,15 @@ const Icons = {
   ),
   ArrowRight: () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
+  ),
+  Instagram: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5" /><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" /><line x1="17.5" x2="17.51" y1="6.5" y2="6.5" /></svg>
+  ),
+  Twitter: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" /></svg>
+  ),
+  Linkedin: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" /><rect width="4" height="12" x="2" y="9" /><circle cx="4" cy="4" r="2" /></svg>
   )
 };
 
@@ -80,7 +89,11 @@ function App() {
     contactEmail: "concierge@luxe.digital",
     contactPhone: "+1 (555) 000-LUXE",
     contactHours: "Monday - Friday: 9am - 6pm PST",
-    accentColor: "#7047eb"
+    accentColor: "#7047eb",
+    heroBg: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=2000&auto=format&fit=crop",
+    instagram: "https://instagram.com",
+    twitter: "https://twitter.com",
+    linkedin: "https://linkedin.com"
   };
 
   const [siteSettings, setSiteSettings] = useState(() => {
@@ -370,6 +383,46 @@ function App() {
                       </div>
                     </div>
 
+                    <div className="settings-section">
+                      <h4 style={{ color: 'var(--accent-color)', marginBottom: '15px', textTransform: 'uppercase', fontSize: '0.8rem' }}>Backgrounds</h4>
+                      <div className="form-group">
+                        <label style={{ display: 'block', fontSize: '0.8rem', opacity: 0.6, marginBottom: '5px' }}>Hero Background Image URL</label>
+                        <input
+                          style={{ width: '100%', padding: '10px', background: '#000', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '8px' }}
+                          value={siteSettings.heroBg}
+                          onChange={(e) => setSiteSettings({ ...siteSettings, heroBg: e.target.value })}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="settings-section">
+                      <h4 style={{ color: 'var(--accent-color)', marginBottom: '15px', textTransform: 'uppercase', fontSize: '0.8rem' }}>Social Media Links</h4>
+                      <div className="form-group" style={{ marginBottom: '10px' }}>
+                        <label style={{ display: 'block', fontSize: '0.8rem', opacity: 0.6, marginBottom: '5px' }}>Instagram</label>
+                        <input
+                          style={{ width: '100%', padding: '10px', background: '#000', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '8px' }}
+                          value={siteSettings.instagram}
+                          onChange={(e) => setSiteSettings({ ...siteSettings, instagram: e.target.value })}
+                        />
+                      </div>
+                      <div className="form-group" style={{ marginBottom: '10px' }}>
+                        <label style={{ display: 'block', fontSize: '0.8rem', opacity: 0.6, marginBottom: '5px' }}>Twitter / X</label>
+                        <input
+                          style={{ width: '100%', padding: '10px', background: '#000', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '8px' }}
+                          value={siteSettings.twitter}
+                          onChange={(e) => setSiteSettings({ ...siteSettings, twitter: e.target.value })}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label style={{ display: 'block', fontSize: '0.8rem', opacity: 0.6, marginBottom: '5px' }}>LinkedIn</label>
+                        <input
+                          style={{ width: '100%', padding: '10px', background: '#000', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '8px' }}
+                          value={siteSettings.linkedin}
+                          onChange={(e) => setSiteSettings({ ...siteSettings, linkedin: e.target.value })}
+                        />
+                      </div>
+                    </div>
+
                   </div>
                   <button className="btn-primary" style={{ marginTop: '30px', width: 'auto' }} onClick={() => alert("Changes applied successfully.")}>Save Deployment Configuration</button>
                 </div>
@@ -432,8 +485,7 @@ function App() {
       ) : (
         <>
           {/* Hero */}
-          <section id="hero" className="hero">
-
+          <section id="hero" className="hero" style={{ backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.8), rgba(0,0,0,0.6)), url(${siteSettings.heroBg})` }}>
             <div className="hero-blob one"></div>
             <div className="hero-blob two"></div>
             <div className="container">
@@ -616,6 +668,17 @@ function App() {
 
           <footer className="footer section-padding">
             <div className="container">
+              <div className="social-links" style={{ display: 'flex', justifyContent: 'center', gap: '30px', marginBottom: '30px' }}>
+                <a href={siteSettings.instagram} target="_blank" rel="noopener noreferrer" className="social-icon" style={{ color: 'rgba(255,255,255,0.6)', transition: '0.3s' }} onMouseEnter={e => e.target.style.color = 'var(--accent-color)'} onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.6)'}>
+                  <Icons.Instagram />
+                </a>
+                <a href={siteSettings.twitter} target="_blank" rel="noopener noreferrer" className="social-icon" style={{ color: 'rgba(255,255,255,0.6)', transition: '0.3s' }} onMouseEnter={e => e.target.style.color = 'var(--accent-color)'} onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.6)'}>
+                  <Icons.Twitter />
+                </a>
+                <a href={siteSettings.linkedin} target="_blank" rel="noopener noreferrer" className="social-icon" style={{ color: 'rgba(255,255,255,0.6)', transition: '0.3s' }} onMouseEnter={e => e.target.style.color = 'var(--accent-color)'} onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.6)'}>
+                  <Icons.Linkedin />
+                </a>
+              </div>
               <p>&copy; {new Date().getFullYear()} {siteSettings.logoText}. All rights reserved.</p>
             </div>
           </footer>
