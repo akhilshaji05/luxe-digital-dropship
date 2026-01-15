@@ -1192,6 +1192,127 @@
   border-color: rgba(255, 255, 255, 0.1);
 }
 
-.admin-orders-cms select:focus {
-  border-color: var(--accent-color);
+/* Authentication Gate Styles */
+.auth-gate {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.auth-card {
+  background: var(--surface-color);
+  padding: 60px;
+  border-radius: 40px;
+  border: 1px solid var(--border-color);
+  width: 100%;
+  max-width: 500px;
+  text-align: center;
+}
+
+.auth-header h1 {
+  font-size: 3rem;
+  margin-bottom: 10px;
+}
+
+.auth-header p {
+  opacity: 0.6;
+  margin-bottom: 40px;
+}
+
+.auth-form .form-group {
+  margin-bottom: 20px;
+}
+
+.auth-form input {
+  width: 100%;
+  padding: 18px;
+  background: #000;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  color: #fff;
+  font-size: 1rem;
+}
+
+.gdpr-box {
+  text-align: left;
+  margin: 20px 0 30px;
+}
+
+.checkbox-wrap {
+  display: flex;
+  gap: 15px;
+  align-items: flex-start;
+  cursor: pointer;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.checkbox-wrap input {
+  width: auto;
+  margin-top: 4px;
+}
+
+.gdpr-text a {
+  color: var(--accent-color);
+  text-decoration: underline;
+}
+
+.auth-footer {
+  margin-top: 30px;
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+.auth-footer button {
+  background: none;
+  border: none;
+  color: var(--accent-color);
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* User Profile in Nav */
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 5px 15px;
+  border-radius: 50px;
+  border: 1px solid var(--border-color);
+}
+
+.user-name {
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: var(--accent-color);
+}
+
+.logout-inline {
+  background: none;
+  border: none;
+  color: #ff4d4d;
+  font-size: 0.7rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+@media (max-width: 600px) {
+  .auth-card {
+    padding: 30px;
+  }
+}
+
+/* Admin User CMS Styles */
+.admin-user-row {
+  transition: 0.3s;
+}
+
+.admin-user-row:hover {
+  background: rgba(255, 255, 255, 0.02) !important;
 }

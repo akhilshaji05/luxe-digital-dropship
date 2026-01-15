@@ -76,9 +76,21 @@ function App() {
   const [view, setView] = useState('shop'); // 'shop', 'admin', 'contact', 'about', or 'track'
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
-  const [adminSubView, setAdminSubView] = useState('products'); // 'products', 'settings', or 'orders'
+  const [adminSubView, setAdminSubView] = useState('products'); // 'products', 'settings', 'orders', or 'customers'
   const [orderId, setOrderId] = useState('');
   const [trackingResult, setTrackingResult] = useState(null);
+
+  const [currentUser, setCurrentUser] = useState(() => {
+    const saved = localStorage.getItem('luxe-user');
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  const [customers, setCustomers] = useState(() => {
+    const saved = localStorage.getItem('luxe-customers');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [authMode, setAuthMode] = useState('login'); // 'login' or 'signup'
 
   const [orders, setOrders] = useState(() => {
     const saved = localStorage.getItem('luxe-orders');
@@ -143,6 +155,14 @@ function App() {
   useEffect(() => {
     localStorage.setItem('luxe-orders', JSON.stringify(orders));
   }, [orders]);
+
+  useEffect(() => {
+    localStorage.setItem('luxe-user', JSON.stringify(currentUser));
+  }, [currentUser]);
+
+  useEffect(() => {
+    localStorage.setItem('luxe-customers', JSON.stringify(customers));
+  }, [customers]);
 
   // Google Sheets Integration Logic
   const saveUserToSheets = async (userData) => {
@@ -214,6 +234,54 @@ function App() {
     setEmailSubscribed(true);
   };
 
+  const handleAuth = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const email = formData.get('email');
+    const password = formData.get('password');
+
+    if (authMode === 'signup') {
+      const name = formData.get('name');
+      const gdprConsent = formData.get('gdpr');
+
+      if (!gdprConsent) {
+        alert("You must agree to the Privacy Policy to proceed.");
+        return;
+      }
+
+      if (customers.find(c => c.email === email)) {
+        alert("Account already exists. Please login.");
+        setAuthMode('login');
+        return;
+      }
+
+      const newUser = {
+        name,
+        email,
+        password, // For demo purposes, we'll store this locally
+        signupDate: new Date().toISOString(),
+        gdprStamp: `Consent ID: ${Math.random().toString(36).substr(2, 9)}`
+      };
+
+      setCustomers([...customers, newUser]);
+      setCurrentUser(newUser);
+      saveUserToSheets({ ...newUser, type: 'New User Signup' });
+    } else {
+      const user = customers.find(c => c.email === email && c.password === password);
+      if (user) {
+        setCurrentUser(user);
+      } else {
+        alert("Invalid credentials. Try again or Create Account.");
+      }
+    }
+  };
+
+  const logout = () => {
+    setCurrentUser(null);
+    setView('shop');
+    setIsAdminAuthenticated(false);
+  };
+
   return (
     <div className="app">
       {/* Navbar */}
@@ -229,6 +297,14 @@ function App() {
             <button className="nav-link-btn" onClick={() => setView('track')}>Track</button>
             <button className="nav-link-btn" onClick={() => setView('contact')}>Contact</button>
             <button className="admin-link" onClick={() => setView('admin')}>Admin</button>
+
+            {currentUser && (
+              <div className="user-profile">
+                <span className="user-name">Welcome, {currentUser.name.split(' ')[0]}</span>
+                <button className="logout-inline" onClick={logout}>Exit</button>
+              </div>
+            )}
+
             <button className="cart-trigger" onClick={() => setIsCartOpen(true)}>
               <Icons.Cart />
               {cart.length > 0 && <span className="cart-count">{cart.length}</span>}
@@ -237,7 +313,55 @@ function App() {
         </div>
       </nav>
 
-      {view === 'admin' ? (
+      {!currentUser ? (
+        <div className="auth-gate container section-padding">
+          <div className="auth-card">
+            <div className="auth-header">
+              <h1>{authMode === 'login' ? 'Welcome Back' : 'Join the Elite'}</h1>
+              <p>{authMode === 'login' ? 'Enter your credentials to access the vault.' : 'Create your secure account to explore the catalog.'}</p>
+            </div>
+
+            <form onSubmit={handleAuth} className="auth-form">
+              {authMode === 'signup' && (
+                <div className="form-group">
+                  <input name="name" type="text" placeholder="Full Name" required />
+                </div>
+              )}
+              <div className="form-group">
+                <input name="email" type="email" placeholder="Email Address" required />
+              </div>
+              <div className="form-group">
+                <input name="password" type="password" placeholder="Password" required />
+              </div>
+
+              {authMode === 'signup' && (
+                <div className="gdpr-box">
+                  <label className="checkbox-wrap">
+                    <input type="checkbox" name="gdpr" required />
+                    <span className="checkmark"></span>
+                    <span className="gdpr-text">
+                      I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+                      I consent to my data being stored in accordance with GDPR standards.
+                    </span>
+                  </label>
+                </div>
+              )}
+
+              <button type="submit" className="btn-primary full-width">
+                {authMode === 'login' ? 'Login to Vault' : 'Create Secure ID'}
+              </button>
+            </form>
+
+            <div className="auth-footer">
+              {authMode === 'login' ? (
+                <p>New to Luxe? <button onClick={() => setAuthMode('signup')}>Create Account</button></p>
+              ) : (
+                <p>Already have an ID? <button onClick={() => setAuthMode('login')}>Login here</button></p>
+              )}
+            </div>
+          </div>
+        </div>
+      ) : view === 'admin' ? (
         <div className="admin-container container section-padding">
           {!isAdminAuthenticated ? (
             <div className="admin-login">
@@ -271,6 +395,13 @@ function App() {
                       style={{ background: 'none', border: 'none', color: adminSubView === 'orders' ? 'var(--accent-color)' : '#fff', cursor: 'pointer', fontWeight: 'bold' }}
                     >
                       Orders
+                    </button>
+                    <button
+                      className={`tab-btn ${adminSubView === 'customers' ? 'active' : ''}`}
+                      onClick={() => setAdminSubView('customers')}
+                      style={{ background: 'none', border: 'none', color: adminSubView === 'customers' ? 'var(--accent-color)' : '#fff', cursor: 'pointer', fontWeight: 'bold' }}
+                    >
+                      Customers
                     </button>
                     <button
                       className={`tab-btn ${adminSubView === 'settings' ? 'active' : ''}`}
@@ -375,6 +506,25 @@ function App() {
                             </select>
                             <button className="delete-btn" onClick={() => setOrders(orders.filter(o => o.id !== order.id))}>X</button>
                           </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              ) : adminSubView === 'customers' ? (
+                <div className="admin-customers-cms">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+                    <h3>Registered Customers ({customers.length})</h3>
+                    <button className="btn-secondary" onClick={() => alert("Syncing with Google Sheets...")}>Manual Sync</button>
+                  </div>
+                  <div className="table-scroll" style={{ background: '#000' }}>
+                    {customers.length === 0 ? <p style={{ padding: '20px', opacity: 0.5 }}>No registered users yet.</p> : (
+                      customers.map(c => (
+                        <div key={c.email} className="admin-user-row" style={{ padding: '20px', borderBottom: '1px solid var(--border-color)', display: 'grid', gridTemplateColumns: '1.5fr 2fr 1.5fr 1fr', alignItems: 'center', gap: '20px' }}>
+                          <div style={{ fontWeight: 'bold' }}>{c.name}</div>
+                          <div style={{ opacity: 0.7 }}>{c.email}</div>
+                          <div style={{ fontSize: '0.8rem', opacity: 0.5 }}>{new Date(c.signupDate).toLocaleDateString()}</div>
+                          <div style={{ fontSize: '0.6rem', color: 'var(--accent-color)' }}>{c.gdprStamp}</div>
                         </div>
                       ))
                     )}
