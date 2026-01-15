@@ -337,33 +337,35 @@ function App() {
   return (
     <div className="app">
       {/* Navbar */}
-      <nav className="navbar">
-        <div className="container nav-content">
-          <div className="logo" onClick={() => setView('shop')} style={{ cursor: 'pointer' }}>
-            {siteSettings.logoText}
-          </div>
-          <div className="nav-links">
-            <a href="#hero" onClick={() => setView('shop')}>Home</a>
-            <a href="#shop" onClick={() => setView('shop')}>Shop</a>
-            <button className="nav-link-btn" onClick={() => setView('about')}>About</button>
-            <button className="nav-link-btn" onClick={() => setView('track')}>Track</button>
-            <button className="nav-link-btn" onClick={() => setView('contact')}>Contact</button>
-            <button className="admin-link" onClick={() => setView('admin')}>Admin</button>
+      {view !== 'admin' && (
+        <nav className="navbar">
+          <div className="container nav-content">
+            <div className="logo" onClick={() => setView('shop')} style={{ cursor: 'pointer' }}>
+              {siteSettings.logoText}
+            </div>
+            <div className="nav-links">
+              <a href="#hero" onClick={() => setView('shop')}>Home</a>
+              <a href="#shop" onClick={() => setView('shop')}>Shop</a>
+              <button className="nav-link-btn" onClick={() => setView('about')}>About</button>
+              <button className="nav-link-btn" onClick={() => setView('track')}>Track</button>
+              <button className="nav-link-btn" onClick={() => setView('contact')}>Contact</button>
+              <button className="admin-link" onClick={() => setView('admin')}>Admin</button>
 
-            {currentUser && (
-              <div className="user-profile">
-                <span className="user-name">Welcome, {currentUser.name.split(' ')[0]}</span>
-                <button className="logout-inline" onClick={logout}>Exit</button>
-              </div>
-            )}
+              {currentUser && (
+                <div className="user-profile">
+                  <span className="user-name">Welcome, {currentUser.name.split(' ')[0]}</span>
+                  <button className="logout-inline" onClick={logout}>Exit</button>
+                </div>
+              )}
 
-            <button className="cart-trigger" onClick={() => setIsCartOpen(true)}>
-              <Icons.Cart />
-              {cart.length > 0 && <span className="cart-count">{cart.length}</span>}
-            </button>
+              <button className="cart-trigger" onClick={() => setIsCartOpen(true)}>
+                <Icons.Cart />
+                {cart.length > 0 && <span className="cart-count">{cart.length}</span>}
+              </button>
+            </div>
           </div>
-        </div>
-      </nav>
+        </nav>
+      )}
 
       {view === 'admin' ? (
         <div className="admin-container container section-padding">
@@ -379,6 +381,11 @@ function App() {
                   onChange={(e) => setAdminPassword(e.target.value)}
                 />
                 <button type="submit" className="btn-primary">Unlock Dashboard</button>
+                <div style={{ marginTop: '20px', fontSize: '0.8rem', opacity: 0.6 }}>
+                  <a href="/" onClick={(e) => { e.preventDefault(); setView('shop'); }} style={{ color: 'inherit', textDecoration: 'underline' }}>
+                    &larr; Return to Shop
+                  </a>
+                </div>
               </form>
             </div>
           ) : (
