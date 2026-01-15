@@ -314,64 +314,12 @@ function App() {
         </div>
       </nav>
 
-      {!currentUser ? (
-        <div className="auth-gate container section-padding">
-          <div className="auth-card">
-            <div className="auth-header">
-              <h1>{authMode === 'login' ? 'Welcome Back' : 'Join the Elite'}</h1>
-              <p>{authMode === 'login' ? 'Enter your credentials to access the vault.' : 'Create your secure account to explore the catalog.'}</p>
-            </div>
-
-            <form onSubmit={handleAuth} className="auth-form">
-              {authMode === 'signup' && (
-                <div className="form-group">
-                  <input name="name" type="text" placeholder="Full Name" required />
-                </div>
-              )}
-              {authMode === 'signup' && (
-                <div className="form-group">
-                  <input name="phone" type="tel" placeholder="Mobile Number" required />
-                </div>
-              )}
-              <div className="form-group">
-                <input name="email" type="email" placeholder="Email Address" required />
-              </div>
-              <div className="form-group">
-                <input name="password" type="password" placeholder="Password" required />
-              </div>
-
-              {authMode === 'signup' && (
-                <div className="gdpr-box">
-                  <label className="checkbox-wrap">
-                    <input type="checkbox" name="gdpr" required />
-                    <span className="checkmark"></span>
-                    <span className="gdpr-text">
-                      I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
-                      I consent to my data being stored in accordance with GDPR standards.
-                    </span>
-                  </label>
-                </div>
-              )}
-
-              <button type="submit" className="btn-primary full-width">
-                {authMode === 'login' ? 'Login to Vault' : 'Create Secure ID'}
-              </button>
-            </form>
-
-            <div className="auth-footer">
-              {authMode === 'login' ? (
-                <p>New to Luxe? <button onClick={() => setAuthMode('signup')}>Create Account</button></p>
-              ) : (
-                <p>Already have an ID? <button onClick={() => setAuthMode('login')}>Login here</button></p>
-              )}
-            </div>
-          </div>
-        </div>
-      ) : view === 'admin' ? (
+      {view === 'admin' ? (
         <div className="admin-container container section-padding">
           {!isAdminAuthenticated ? (
             <div className="admin-login">
-              <h2>Admin Access</h2>
+              <h2>Admin Control Center</h2>
+              <p style={{ opacity: 0.6, marginBottom: '30px' }}>Secure administrator access only.</p>
               <form onSubmit={handleAdminLogin}>
                 <input
                   type="password"
@@ -686,6 +634,59 @@ function App() {
               )}
             </div>
           )}
+        </div>
+      ) : !currentUser ? (
+        <div className="auth-gate container section-padding">
+          <div className="auth-card">
+            <div className="auth-header">
+              <h1>{authMode === 'login' ? 'Welcome Back' : 'Join the Elite'}</h1>
+              <p>{authMode === 'login' ? 'Enter your credentials to access the vault.' : 'Create your secure account to explore the catalog.'}</p>
+            </div>
+
+            <form onSubmit={handleAuth} className="auth-form">
+              {authMode === 'signup' && (
+                <div className="form-group">
+                  <input name="name" type="text" placeholder="Full Name" required />
+                </div>
+              )}
+              {authMode === 'signup' && (
+                <div className="form-group">
+                  <input name="phone" type="tel" placeholder="Mobile Number" required />
+                </div>
+              )}
+              <div className="form-group">
+                <input name="email" type="email" placeholder="Email Address" required />
+              </div>
+              <div className="form-group">
+                <input name="password" type="password" placeholder="Password" required />
+              </div>
+
+              {authMode === 'signup' && (
+                <div className="gdpr-box">
+                  <label className="checkbox-wrap">
+                    <input type="checkbox" name="gdpr" required />
+                    <span className="checkmark"></span>
+                    <span className="gdpr-text">
+                      I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+                      I consent to my data being stored in accordance with GDPR standards.
+                    </span>
+                  </label>
+                </div>
+              )}
+
+              <button type="submit" className="btn-primary full-width">
+                {authMode === 'login' ? 'Login to Vault' : 'Create Secure ID'}
+              </button>
+            </form>
+
+            <div className="auth-footer">
+              {authMode === 'login' ? (
+                <p>New to Luxe? <button onClick={() => setAuthMode('signup')}>Create Account</button></p>
+              ) : (
+                <p>Already have an ID? <button onClick={() => setAuthMode('login')}>Login here</button></p>
+              )}
+            </div>
+          </div>
         </div>
       ) : view === 'about' ? (
         <div className="about-page container section-padding">
