@@ -748,6 +748,7 @@ function App() {
                           </div>
                         </div>
 
+                        <button type="submit" className="btn-primary full-width" style={{ marginTop: '20px' }}>Add to Catalog</button>
                       </form>
                     </div>
 
