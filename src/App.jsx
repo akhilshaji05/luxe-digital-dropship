@@ -258,6 +258,7 @@ function App() {
       const newUser = {
         name,
         email,
+        phone: formData.get('phone'),
         password, // For demo purposes, we'll store this locally
         signupDate: new Date().toISOString(),
         gdprStamp: `Consent ID: ${Math.random().toString(36).substr(2, 9)}`
@@ -325,6 +326,11 @@ function App() {
               {authMode === 'signup' && (
                 <div className="form-group">
                   <input name="name" type="text" placeholder="Full Name" required />
+                </div>
+              )}
+              {authMode === 'signup' && (
+                <div className="form-group">
+                  <input name="phone" type="tel" placeholder="Mobile Number" required />
                 </div>
               )}
               <div className="form-group">
@@ -520,9 +526,10 @@ function App() {
                   <div className="table-scroll" style={{ background: '#000' }}>
                     {customers.length === 0 ? <p style={{ padding: '20px', opacity: 0.5 }}>No registered users yet.</p> : (
                       customers.map(c => (
-                        <div key={c.email} className="admin-user-row" style={{ padding: '20px', borderBottom: '1px solid var(--border-color)', display: 'grid', gridTemplateColumns: '1.5fr 2fr 1.5fr 1fr', alignItems: 'center', gap: '20px' }}>
+                        <div key={c.email} className="admin-user-row" style={{ padding: '20px', borderBottom: '1px solid var(--border-color)', display: 'grid', gridTemplateColumns: '1.2fr 1.5fr 1.2fr 1fr 1fr', alignItems: 'center', gap: '20px' }}>
                           <div style={{ fontWeight: 'bold' }}>{c.name}</div>
                           <div style={{ opacity: 0.7 }}>{c.email}</div>
+                          <div style={{ opacity: 0.7 }}>{c.phone || 'N/A'}</div>
                           <div style={{ fontSize: '0.8rem', opacity: 0.5 }}>{new Date(c.signupDate).toLocaleDateString()}</div>
                           <div style={{ fontSize: '0.6rem', color: 'var(--accent-color)' }}>{c.gdprStamp}</div>
                         </div>
