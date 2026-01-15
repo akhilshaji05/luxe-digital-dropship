@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 
 // SVG Icons as components to remove lucide-react dependency
@@ -368,7 +368,11 @@ function App() {
                     <p>Check your email for a 10% discount on your first order.</p>
                   </div>
                 ) : (
-                  <form className="newsletter-form" onSubmit={handleSubscribe}>
+                  <form className="newsletter-form" onSubmit={(e) => {
+                    handleSubscribe(e);
+                    const email = e.target.querySelector('input').value;
+                    saveUserToSheets({ email, type: 'Newsletter', date: new Date().toISOString() });
+                  }}>
                     <input type="email" placeholder="Your email address" required />
                     <button type="submit" className="btn-primary">Subscribe</button>
                   </form>
@@ -418,7 +422,15 @@ function App() {
                   <span>Subtotal</span>
                   <span>${total.toFixed(2)}</span>
                 </div>
-                <button className="checkout-btn">Proceed to Checkout</button>
+                <button className="checkout-btn" onClick={() => {
+                  alert("Proceeding to secure checkout...");
+                  saveUserToSheets({
+                    type: 'Checkout Attempt',
+                    total: total,
+                    items: cart.length,
+                    date: new Date().toISOString()
+                  });
+                }}>Proceed to Checkout</button>
               </div>
             )}
           </div>
