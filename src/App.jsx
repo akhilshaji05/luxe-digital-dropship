@@ -1,7 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { ShoppingCart, X, Plus, Minus, Check, ArrowRight, ExternalLink } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState } from 'react';
 import './App.css';
+
+// SVG Icons as components to remove lucide-react dependency
+const Icons = {
+  Cart: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" /><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" /></svg>
+  ),
+  X: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+  ),
+  Plus: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="M12 5v14" /></svg>
+  ),
+  Minus: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /></svg>
+  ),
+  ArrowRight: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
+  )
+};
 
 const PRODUCTS = [
   {
@@ -82,7 +99,7 @@ function App() {
             <a href="#hero">Home</a>
             <a href="#shop">Shop</a>
             <button className="cart-trigger" onClick={() => setIsCartOpen(true)}>
-              <ShoppingCart size={20} />
+              <Icons.Cart />
               {cart.length > 0 && <span className="cart-count">{cart.length}</span>}
             </button>
           </div>
@@ -94,18 +111,13 @@ function App() {
         <div className="hero-blob one"></div>
         <div className="hero-blob two"></div>
         <div className="container">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="hero-text"
-          >
+          <div className="hero-text">
             <h1>Digital Mastery <br /><span>Physical Luxury</span></h1>
             <p>Elevate your lifestyle with curated digital assets and premium dropshipping collections.</p>
             <div className="hero-btns">
-              <a href="#shop" className="btn-primary">Explore Shop <ArrowRight size={18} /></a>
+              <a href="#shop" className="btn-primary">Explore Shop <Icons.ArrowRight /></a>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
@@ -129,14 +141,7 @@ function App() {
 
           <div className="product-grid">
             {filteredProducts.map(product => (
-              <motion.div
-                layout
-                key={product.id}
-                className="product-card"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.4 }}
-              >
+              <div key={product.id} className="product-card">
                 <div className="card-image">
                   <img src={product.image} alt={product.name} />
                   <div className="card-overlay">
@@ -153,75 +158,57 @@ function App() {
                   <h3>{product.name}</h3>
                   <p>{product.desc}</p>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* Cart Sidebar */}
-      <AnimatePresence>
-        {isCartOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="cart-overlay"
-              onClick={() => setIsCartOpen(false)}
-            />
-            <motion.div
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="cart-sidebar"
-            >
-              <div className="cart-header">
-                <h2>Your Selection</h2>
-                <button onClick={() => setIsCartOpen(false)}><X size={24} /></button>
-              </div>
+      <div className={`cart-overlay ${isCartOpen ? 'open' : ''}`} onClick={() => setIsCartOpen(false)} />
+      <div className={`cart-sidebar ${isCartOpen ? 'open' : ''}`}>
+        <div className="cart-header">
+          <h2>Your Selection</h2>
+          <button onClick={() => setIsCartOpen(false)}><Icons.X /></button>
+        </div>
 
-              <div className="cart-items">
-                {cart.length === 0 ? (
-                  <div className="empty-cart">
-                    <ShoppingCart size={48} />
-                    <p>Your vault is currently empty.</p>
-                  </div>
-                ) : (
-                  cart.map(item => (
-                    <div key={item.id} className="cart-item">
-                      <img src={item.image} alt={item.name} />
-                      <div className="item-info">
-                        <h4>{item.name}</h4>
-                        <p className="item-price">${item.price.toFixed(2)}</p>
-                        <div className="item-controls">
-                          <div className="qty-wrap">
-                            <button onClick={() => updateQty(item.id, -1)}><Minus size={14} /></button>
-                            <span>{item.qty}</span>
-                            <button onClick={() => updateQty(item.id, 1)}><Plus size={14} /></button>
-                          </div>
-                          <button onClick={() => removeFromCart(item.id)} className="remove-item">Remove</button>
-                        </div>
-                      </div>
+        <div className="cart-items">
+          {cart.length === 0 ? (
+            <div className="empty-cart">
+              <Icons.Cart />
+              <p>Your vault is currently empty.</p>
+            </div>
+          ) : (
+            cart.map(item => (
+              <div key={item.id} className="cart-item">
+                <img src={item.image} alt={item.name} />
+                <div className="item-info">
+                  <h4>{item.name}</h4>
+                  <p className="item-price">${item.price.toFixed(2)}</p>
+                  <div className="item-controls">
+                    <div className="qty-wrap">
+                      <button onClick={() => updateQty(item.id, -1)}><Icons.Minus /></button>
+                      <span>{item.qty}</span>
+                      <button onClick={() => updateQty(item.id, 1)}><Icons.Plus /></button>
                     </div>
-                  ))
-                )}
-              </div>
-
-              {cart.length > 0 && (
-                <div className="cart-footer">
-                  <div className="total-row">
-                    <span>Subtotal</span>
-                    <span>${total.toFixed(2)}</span>
+                    <button onClick={() => removeFromCart(item.id)} className="remove-item">Remove</button>
                   </div>
-                  <button className="checkout-btn">Proceed to Checkout</button>
                 </div>
-              )}
-            </motion.div>
-          </>
+              </div>
+            ))
+          )}
+        </div>
+
+        {cart.length > 0 && (
+          <div className="cart-footer">
+            <div className="total-row">
+              <span>Subtotal</span>
+              <span>${total.toFixed(2)}</span>
+            </div>
+            <button className="checkout-btn">Proceed to Checkout</button>
+          </div>
         )}
-      </AnimatePresence>
+      </div>
 
       <footer className="footer section-padding">
         <div className="container">
