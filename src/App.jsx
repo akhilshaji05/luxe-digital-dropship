@@ -105,6 +105,7 @@ function App() {
   const [authMode, setAuthMode] = useState('login'); // 'login' or 'signup'
   const [editingCustomer, setEditingCustomer] = useState(null);
   const [productUploadType, setProductUploadType] = useState('url'); // 'url' or 'file'
+  const [imagePreview, setImagePreview] = useState(''); // Live preview for admin upload
   const [wishlist, setWishlist] = useState(() => {
     const saved = localStorage.getItem('luxe-wishlist');
     return saved ? JSON.parse(saved) : [];
@@ -341,7 +342,7 @@ function App() {
   };
 
   const addProduct = (newProd) => {
-    setProducts([...products, { ...newProd, id: Date.now(), rating: 5.0 }]);
+    setProducts([...products, { ...newProd, id: Date.now(), rating: 5.0, reviews: [] }]);
   };
 
   const deleteProduct = (id) => {
@@ -640,8 +641,15 @@ function App() {
                           }
                         }
 
+                        // Use preview as fallback if URL/File logic fails or if preview is already set by file input
+                        if (!finalImage && imagePreview) finalImage = imagePreview;
+
                         addProduct({
                           name: formData.get('name'),
+                          brand: formData.get('brand'),
+                          sku: formData.get('sku'),
+                          stock: parseInt(formData.get('stock') || 0),
+                          status: formData.get('status'),
                           category: formData.get('category'),
                           type: formData.get('type'),
                           price: parseFloat(formData.get('price')),
@@ -652,60 +660,94 @@ function App() {
                           colors: formData.get('colors') ? formData.get('colors').split(',').map(c => c.trim()).filter(c => c) : []
                         });
                         e.target.reset();
+                        setImagePreview('');
                         alert("Product Added Successfully!");
                       }}>
 
-                        <div className="form-section" style={{ marginBottom: '20px' }}>
-                          <h4 style={{ fontSize: '0.9rem', color: 'var(--accent-color)', marginBottom: '10px', textTransform: 'uppercase' }}>1. Essentials</h4>
-                          <input name="name" placeholder="Product Name" required style={{ marginBottom: '10px' }} />
-                          <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
-                            <input name="price" type="number" step="0.01" placeholder="Price ($)" required style={{ flex: 1 }} />
-                            <select name="category" required style={{ flex: 1 }}>
-                              <option value="digital">Digital Asset</option>
-                              <option value="physical">Physical Good</option>
-                            </select>
+                        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '30px' }}>
+                          <div>
+                            <div className="form-section" style={{ marginBottom: '20px' }}>
+                              <h4 style={{ fontSize: '0.9rem', color: 'var(--accent-color)', marginBottom: '10px', textTransform: 'uppercase' }}>1. Essentials</h4>
+                              <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                                <input name="name" placeholder="Product Name" required style={{ flex: 2 }} />
+                                <input name="brand" placeholder="Brand / Vendor" style={{ flex: 1 }} />
+                              </div>
+                              <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                                <input name="price" type="number" step="0.01" placeholder="Price ($)" required style={{ flex: 1 }} />
+                                <select name="status" required style={{ flex: 1 }}>
+                                  <option value="Active">Active</option>
+                                  <option value="Draft">Draft</option>
+                                  <option value="Sold Out">Sold Out</option>
+                                </select>
+                              </div>
+                              <input name="desc" placeholder="Short tagline (e.g. 'Premium Hoodie')" required style={{ marginBottom: '10px' }} />
+                              <textarea name="fullDesc" placeholder="Full product description..." required style={{ height: '80px' }} />
+                            </div>
+
+                            <div className="form-section" style={{ marginBottom: '20px', borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
+                              <h4 style={{ fontSize: '0.9rem', color: 'var(--accent-color)', marginBottom: '10px', textTransform: 'uppercase' }}>2. Inventory & Classification</h4>
+                              <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                                <input name="sku" placeholder="SKU (e.g. HOOD-BLK-001)" required style={{ flex: 1 }} />
+                                <input name="stock" type="number" placeholder="Stock Qty" required style={{ flex: 1 }} />
+                              </div>
+                              <div style={{ display: 'flex', gap: '10px' }}>
+                                <select name="category" required style={{ flex: 1 }}>
+                                  <option value="digital">Digital Asset</option>
+                                  <option value="physical">Physical Good</option>
+                                </select>
+                                <input name="type" placeholder="Type (e.g. Hoodie)" style={{ flex: 1 }} />
+                              </div>
+                            </div>
+
+                            <div className="form-section" style={{ marginBottom: '20px', borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
+                              <h4 style={{ fontSize: '0.9rem', color: 'var(--accent-color)', marginBottom: '10px', textTransform: 'uppercase' }}>3. Variants</h4>
+                              <div style={{ display: 'flex', gap: '10px' }}>
+                                <div style={{ flex: 1 }}>
+                                  <label style={{ fontSize: '0.8rem', opacity: 0.7, display: 'block', marginBottom: '5px' }}>Sizes</label>
+                                  <input name="sizes" placeholder="S, M, L, XL" />
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                  <label style={{ fontSize: '0.8rem', opacity: 0.7, display: 'block', marginBottom: '5px' }}>Colors</label>
+                                  <input name="colors" placeholder="Red, Black, Gold" />
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                          <input name="desc" placeholder="Short tagline (e.g. 'Premium Hoodie')" required style={{ marginBottom: '10px' }} />
-                          <textarea name="fullDesc" placeholder="Full product description..." required style={{ height: '80px' }} />
+
+                          {/* Media Sidebar */}
+                          <div className="media-sidebar">
+                            <h4 style={{ fontSize: '0.9rem', color: 'var(--accent-color)', marginBottom: '10px', textTransform: 'uppercase' }}>4. Media</h4>
+                            <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+                              <button type="button" className={`filter-btn ${productUploadType === 'url' ? 'active' : ''}`} onClick={() => setProductUploadType('url')}>URL</button>
+                              <button type="button" className={`filter-btn ${productUploadType === 'file' ? 'active' : ''}`} onClick={() => setProductUploadType('file')}>Upload</button>
+                            </div>
+
+                            {productUploadType === 'url' ? (
+                              <input name="imageUrl" placeholder="https://..." onChange={(e) => setImagePreview(e.target.value)} required />
+                            ) : (
+                              <div style={{ padding: '20px', border: '1px dashed var(--border-color)', borderRadius: 'var(--btn-radius)', textAlign: 'center' }}>
+                                <input type="file" accept="image/*" onChange={(e) => {
+                                  const file = e.target.files[0];
+                                  if (file) {
+                                    const reader = new FileReader();
+                                    reader.onload = (ev) => setImagePreview(ev.target.result);
+                                    reader.readAsDataURL(file);
+                                  }
+                                }} />
+                                <p style={{ fontSize: '0.8rem', marginTop: '10px', opacity: 0.6 }}>Supports JPG, PNG, WEBP</p>
+                              </div>
+                            )}
+
+                            <div className="image-preview-box" style={{ marginTop: '20px', width: '100%', aspectRatio: '1/1', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: imagePreview ? '2px solid var(--accent-color)' : '1px solid var(--border-color)' }}>
+                              {imagePreview ? (
+                                <img src={imagePreview} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                              ) : (
+                                <span style={{ opacity: 0.4, fontSize: '0.8rem' }}>No Image Preview</span>
+                              )}
+                            </div>
+                          </div>
                         </div>
 
-                        <div className="form-section" style={{ marginBottom: '20px', borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
-                          <h4 style={{ fontSize: '0.9rem', color: 'var(--accent-color)', marginBottom: '10px', textTransform: 'uppercase' }}>2. Variants</h4>
-                          <div style={{ marginBottom: '10px' }}>
-                            <label style={{ fontSize: '0.8rem', opacity: 0.7, display: 'block', marginBottom: '5px' }}>Product Type</label>
-                            <input name="type" placeholder="e.g. Hoodie, Preset, Access Pass" />
-                          </div>
-                          <div style={{ display: 'flex', gap: '10px' }}>
-                            <div style={{ flex: 1 }}>
-                              <label style={{ fontSize: '0.8rem', opacity: 0.7, display: 'block', marginBottom: '5px' }}>Sizes (comma separated)</label>
-                              <input name="sizes" placeholder="S, M, L, XL" />
-                            </div>
-                            <div style={{ flex: 1 }}>
-                              <label style={{ fontSize: '0.8rem', opacity: 0.7, display: 'block', marginBottom: '5px' }}>Colors (comma separated)</label>
-                              <input name="colors" placeholder="Red, Black, Gold" />
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="form-section" style={{ marginBottom: '20px', borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
-                          <h4 style={{ fontSize: '0.9rem', color: 'var(--accent-color)', marginBottom: '10px', textTransform: 'uppercase' }}>3. Media</h4>
-                          <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
-                            <button type="button" className={`filter-btn ${productUploadType === 'url' ? 'active' : ''}`} onClick={() => setProductUploadType('url')}>Image URL</button>
-                            <button type="button" className={`filter-btn ${productUploadType === 'file' ? 'active' : ''}`} onClick={() => setProductUploadType('file')}>Upload File</button>
-                          </div>
-
-                          {productUploadType === 'url' ? (
-                            <input name="imageUrl" placeholder="https://..." required />
-                          ) : (
-                            <div style={{ padding: '20px', border: '1px dashed var(--border-color)', borderRadius: 'var(--btn-radius)', textAlign: 'center' }}>
-                              <input type="file" name="imageFile" accept="image/*" required style={{ display: 'none' }} id="prod-file-upload" />
-                              <label htmlFor="prod-file-upload" style={{ cursor: 'pointer', color: 'var(--accent-color)', fontWeight: 'bold' }}>Click to Select Image</label>
-                              <p style={{ fontSize: '0.8rem', opacity: 0.5, marginTop: '5px' }}>Max size 2MB recommended.</p>
-                            </div>
-                          )}
-                        </div>
-
-                        <button type="submit" className="btn-primary full-width">Add to Catalog</button>
                       </form>
                     </div>
 
@@ -724,7 +766,7 @@ function App() {
                         ))}
                       </div>
                     </div>
-                  </div>
+                  </div >
                 ) : adminSubView === 'orders' ? (
                   <div className="admin-orders-cms">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
@@ -1074,10 +1116,11 @@ function App() {
                     </div>
                     <button className="btn-primary" style={{ marginTop: '30px', width: 'auto' }} onClick={() => alert("Changes applied successfully.")}>Save Deployment Configuration</button>
                   </div>
-                )}
-              </div>
+                )
+                }
+              </div >
             )}
-          </div>
+          </div >
         ) : !currentUser ? (
           <div className="auth-gate container section-padding">
             <div className="auth-card">
@@ -1386,8 +1429,14 @@ function App() {
                     <div className="modal-details">
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
                         <div>
+                          {selectedProduct.brand && <span className="brand-tag" style={{ fontSize: '0.9rem', color: 'var(--accent-color)', fontWeight: 'bold', display: 'block', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '1px' }}>{selectedProduct.brand}</span>}
                           <span className="category-tag">{selectedProduct.category} {selectedProduct.type ? `• ${selectedProduct.type}` : ''}</span>
                           <h2>{selectedProduct.name}</h2>
+                          {selectedProduct.status === 'Sold Out' || (selectedProduct.stock !== undefined && selectedProduct.stock <= 0) ? (
+                            <span className="status-badge sold-out" style={{ background: 'red', color: '#fff', padding: '2px 8px', borderRadius: '4px', fontSize: '0.7rem' }}>SOLD OUT</span>
+                          ) : selectedProduct.stock && selectedProduct.stock < 5 ? (
+                            <span className="status-badge low-stock" style={{ color: 'orange', fontSize: '0.8rem' }}>Only {selectedProduct.stock} left in stock!</span>
+                          ) : null}
                         </div>
                         <div className="rating">
                           ★★★★★ <span>({selectedProduct.rating ? selectedProduct.rating.toFixed(1) : '5.0'})</span>
