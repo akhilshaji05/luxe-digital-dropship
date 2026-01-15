@@ -67,6 +67,26 @@ function App() {
   const [view, setView] = useState('shop'); // 'shop', 'admin', or 'contact'
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
+  const [adminSubView, setAdminSubView] = useState('products'); // 'products' or 'settings'
+
+  const initialSettings = {
+    logoText: "LUXE",
+    heroTitle: "Digital Assets & Premium Drops",
+    heroSubtitle: "Curated high-end presets, templates, and physical lifestyle products for the elite standard.",
+    shopTitle: "The Collection",
+    newsletterTitle: "Join the Luxe List",
+    newsletterSubtitle: "Check your email for a 10% discount on your first order.",
+    contactAddress: "123 Luxury Lane, Suite 500 Beverly Hills, CA 90210",
+    contactEmail: "concierge@luxe.digital",
+    contactPhone: "+1 (555) 000-LUXE",
+    contactHours: "Monday - Friday: 9am - 6pm PST",
+    accentColor: "#7047eb"
+  };
+
+  const [siteSettings, setSiteSettings] = useState(() => {
+    const saved = localStorage.getItem('luxe-settings');
+    return saved ? JSON.parse(saved) : initialSettings;
+  });
 
   const [products, setProducts] = useState(() => {
     const saved = localStorage.getItem('luxe-products');
@@ -91,6 +111,11 @@ function App() {
   useEffect(() => {
     localStorage.setItem('luxe-products', JSON.stringify(products));
   }, [products]);
+
+  useEffect(() => {
+    localStorage.setItem('luxe-settings', JSON.stringify(siteSettings));
+    document.documentElement.style.setProperty('--accent-color', siteSettings.accentColor);
+  }, [siteSettings]);
 
   // Google Sheets Integration Logic
   const saveUserToSheets = async (userData) => {
@@ -167,7 +192,9 @@ function App() {
       {/* Navbar */}
       <nav className="navbar">
         <div className="container nav-content">
-          <div className="logo" onClick={() => setView('shop')}>LUXE</div>
+          <div className="logo" onClick={() => setView('shop')} style={{ cursor: 'pointer' }}>
+            {siteSettings.logoText}
+          </div>
           <div className="nav-links">
             <a href="#hero" onClick={() => setView('shop')}>Home</a>
             <a href="#shop" onClick={() => setView('shop')}>Shop</a>
@@ -199,55 +226,154 @@ function App() {
           ) : (
             <div className="admin-dashboard">
               <div className="dashboard-header">
-                <h2>Product Control Center</h2>
+                <div>
+                  <h2>Control Center</h2>
+                  <div className="admin-tabs" style={{ display: 'flex', gap: '20px', marginTop: '10px' }}>
+                    <button
+                      className={`tab-btn ${adminSubView === 'products' ? 'active' : ''}`}
+                      onClick={() => setAdminSubView('products')}
+                      style={{ background: 'none', border: 'none', color: adminSubView === 'products' ? 'var(--accent-color)' : '#fff', cursor: 'pointer', fontWeight: 'bold' }}
+                    >
+                      Inventory
+                    </button>
+                    <button
+                      className={`tab-btn ${adminSubView === 'settings' ? 'active' : ''}`}
+                      onClick={() => setAdminSubView('settings')}
+                      style={{ background: 'none', border: 'none', color: adminSubView === 'settings' ? 'var(--accent-color)' : '#fff', cursor: 'pointer', fontWeight: 'bold' }}
+                    >
+                      Site Customization
+                    </button>
+                  </div>
+                </div>
                 <button className="btn-secondary" onClick={() => setIsAdminAuthenticated(false)}>Logout</button>
               </div>
 
-              <div className="admin-grid">
-                <div className="add-product-card">
-                  <h3>Add New Product</h3>
-                  <form onSubmit={(e) => {
-                    e.preventDefault();
-                    const formData = new FormData(e.target);
-                    addProduct({
-                      name: formData.get('name'),
-                      category: formData.get('category'),
-                      price: parseFloat(formData.get('price')),
-                      image: formData.get('image'),
-                      desc: formData.get('desc'),
-                      fullDesc: formData.get('fullDesc')
-                    });
-                    e.target.reset();
-                  }}>
-                    <input name="name" placeholder="Product Name" required />
-                    <select name="category" required>
-                      <option value="digital">Digital</option>
-                      <option value="physical">Physical</option>
-                    </select>
-                    <input name="price" type="number" step="0.01" placeholder="Price" required />
-                    <input name="image" placeholder="Image URL (Unsplash)" required />
-                    <input name="desc" placeholder="Short description" required />
-                    <textarea name="fullDesc" placeholder="Full product description" required />
-                    <button type="submit" className="btn-primary">Add to Catalog</button>
-                  </form>
-                </div>
+              {adminSubView === 'products' ? (
+                <div className="admin-grid">
+                  <div className="add-product-card">
+                    <h3>Add New Product</h3>
+                    <form onSubmit={(e) => {
+                      e.preventDefault();
+                      const formData = new FormData(e.target);
+                      addProduct({
+                        name: formData.get('name'),
+                        category: formData.get('category'),
+                        price: parseFloat(formData.get('price')),
+                        image: formData.get('image'),
+                        desc: formData.get('desc'),
+                        fullDesc: formData.get('fullDesc')
+                      });
+                      e.target.reset();
+                    }}>
+                      <input name="name" placeholder="Product Name" required />
+                      <select name="category" required>
+                        <option value="digital">Digital</option>
+                        <option value="physical">Physical</option>
+                      </select>
+                      <input name="price" type="number" step="0.01" placeholder="Price" required />
+                      <input name="image" placeholder="Image URL (Unsplash)" required />
+                      <input name="desc" placeholder="Short description" required />
+                      <textarea name="fullDesc" placeholder="Full product description" required />
+                      <button type="submit" className="btn-primary">Add to Catalog</button>
+                    </form>
+                  </div>
 
-                <div className="product-list-table">
-                  <h3>Live Catalog ({products.length})</h3>
-                  <div className="table-scroll">
-                    {products.map(p => (
-                      <div key={p.id} className="admin-prod-row">
-                        <img src={p.image} alt="" />
-                        <div className="row-info">
-                          <h4>{p.name}</h4>
-                          <span>${p.price}</span>
+                  <div className="product-list-table">
+                    <h3>Live Catalog ({products.length})</h3>
+                    <div className="table-scroll">
+                      {products.map(p => (
+                        <div key={p.id} className="admin-prod-row">
+                          <img src={p.image} alt="" />
+                          <div className="row-info">
+                            <h4>{p.name}</h4>
+                            <span>${p.price}</span>
+                          </div>
+                          <button onClick={() => deleteProduct(p.id)} className="delete-btn">Delete</button>
                         </div>
-                        <button onClick={() => deleteProduct(p.id)} className="delete-btn">Delete</button>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="site-settings-card" style={{ background: 'var(--surface-color)', padding: '40px', borderRadius: '20px', border: '1px solid var(--border-color)' }}>
+                  <h3 style={{ marginBottom: '30px' }}>Global Site Settings</h3>
+                  <div className="settings-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px' }}>
+
+                    <div className="settings-section">
+                      <h4 style={{ color: 'var(--accent-color)', marginBottom: '15px', textTransform: 'uppercase', fontSize: '0.8rem' }}>Branding & Theme</h4>
+                      <div className="form-group" style={{ marginBottom: '15px' }}>
+                        <label style={{ display: 'block', fontSize: '0.8rem', opacity: 0.6, marginBottom: '5px' }}>Logo Text</label>
+                        <input
+                          style={{ width: '100%', padding: '10px', background: '#000', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '8px' }}
+                          value={siteSettings.logoText}
+                          onChange={(e) => setSiteSettings({ ...siteSettings, logoText: e.target.value })}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label style={{ display: 'block', fontSize: '0.8rem', opacity: 0.6, marginBottom: '5px' }}>Accent Color</label>
+                        <input
+                          type="color"
+                          style={{ width: '100%', height: '40px', padding: '2px', background: '#000', border: '1px solid var(--border-color)', borderRadius: '8px' }}
+                          value={siteSettings.accentColor}
+                          onChange={(e) => setSiteSettings({ ...siteSettings, accentColor: e.target.value })}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="settings-section">
+                      <h4 style={{ color: 'var(--accent-color)', marginBottom: '15px', textTransform: 'uppercase', fontSize: '0.8rem' }}>Hero (Homepage)</h4>
+                      <div className="form-group" style={{ marginBottom: '15px' }}>
+                        <label style={{ display: 'block', fontSize: '0.8rem', opacity: 0.6, marginBottom: '5px' }}>Headline</label>
+                        <input
+                          style={{ width: '100%', padding: '10px', background: '#000', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '8px' }}
+                          value={siteSettings.heroTitle}
+                          onChange={(e) => setSiteSettings({ ...siteSettings, heroTitle: e.target.value })}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label style={{ display: 'block', fontSize: '0.8rem', opacity: 0.6, marginBottom: '5px' }}>Subheadline</label>
+                        <textarea
+                          style={{ width: '100%', height: '80px', padding: '10px', background: '#000', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '8px', resize: 'none' }}
+                          value={siteSettings.heroSubtitle}
+                          onChange={(e) => setSiteSettings({ ...siteSettings, heroSubtitle: e.target.value })}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="settings-section">
+                      <h4 style={{ color: 'var(--accent-color)', marginBottom: '15px', textTransform: 'uppercase', fontSize: '0.8rem' }}>Contact Page Info</h4>
+                      <div className="form-group" style={{ marginBottom: '10px' }}>
+                        <input
+                          placeholder="Address"
+                          style={{ width: '100%', padding: '10px', background: '#000', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '8px', marginBottom: '10px' }}
+                          value={siteSettings.contactAddress}
+                          onChange={(e) => setSiteSettings({ ...siteSettings, contactAddress: e.target.value })}
+                        />
+                        <input
+                          placeholder="Email"
+                          style={{ width: '100%', padding: '10px', background: '#000', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '8px', marginBottom: '10px' }}
+                          value={siteSettings.contactEmail}
+                          onChange={(e) => setSiteSettings({ ...siteSettings, contactEmail: e.target.value })}
+                        />
+                        <input
+                          placeholder="Phone"
+                          style={{ width: '100%', padding: '10px', background: '#000', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '8px', marginBottom: '10px' }}
+                          value={siteSettings.contactPhone}
+                          onChange={(e) => setSiteSettings({ ...siteSettings, contactPhone: e.target.value })}
+                        />
+                        <input
+                          placeholder="Store Hours"
+                          style={{ width: '100%', padding: '10px', background: '#000', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '8px' }}
+                          value={siteSettings.contactHours}
+                          onChange={(e) => setSiteSettings({ ...siteSettings, contactHours: e.target.value })}
+                        />
+                      </div>
+                    </div>
+
+                  </div>
+                  <button className="btn-primary" style={{ marginTop: '30px', width: 'auto' }} onClick={() => alert("Changes applied successfully.")}>Save Deployment Configuration</button>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -261,15 +387,15 @@ function App() {
             <div className="contact-info">
               <div className="info-item">
                 <h3>Our Studio</h3>
-                <p>123 Luxury Lane, Suite 500<br />Beverly Hills, CA 90210</p>
+                <p>{siteSettings.contactAddress}</p>
               </div>
               <div className="info-item">
                 <h3>Contact Details</h3>
-                <p>Email: concierge@luxe.digital<br />Phone: +1 (555) 000-LUXE</p>
+                <p>Email: {siteSettings.contactEmail}<br />Phone: {siteSettings.contactPhone}</p>
               </div>
               <div className="info-item">
                 <h3>Customer Service</h3>
-                <p>Monday - Friday: 9am - 6pm PST<br />Saturday: 10am - 4pm PST</p>
+                <p>{siteSettings.contactHours}</p>
               </div>
             </div>
             <div className="contact-form-wrap">
@@ -312,8 +438,8 @@ function App() {
             <div className="hero-blob two"></div>
             <div className="container">
               <div className="hero-text">
-                <h1>Digital Mastery <br /><span>Physical Luxury</span></h1>
-                <p>Elevate your lifestyle with curated digital assets and premium dropshipping collections.</p>
+                <h1>{siteSettings.heroTitle}</h1>
+                <p>{siteSettings.heroSubtitle}</p>
                 <div className="hero-btns">
                   <a href="#shop" className="btn-primary">Explore Shop <Icons.ArrowRight /></a>
                 </div>
@@ -325,7 +451,7 @@ function App() {
           <section id="shop" className="shop section-padding">
             <div className="container">
               <div className="section-header">
-                <h2 className="section-title">The Collection</h2>
+                <h2 className="section-title">{siteSettings.shopTitle}</h2>
                 <div className="search-wrap">
                   <input
                     type="text"
@@ -413,8 +539,8 @@ function App() {
           <section className="newsletter section-padding">
             <div className="container">
               <div className="newsletter-box">
-                <h2>Join the Inner Circle</h2>
-                <p>Get exclusive early access to digital assets and limited physical drops.</p>
+                <h2>{siteSettings.newsletterTitle}</h2>
+                <p>{siteSettings.newsletterSubtitle}</p>
                 {emailSubscribed ? (
                   <div className="success-msg">
                     <h3>Welcome to the Vault!</h3>
@@ -490,7 +616,7 @@ function App() {
 
           <footer className="footer section-padding">
             <div className="container">
-              <p>&copy; 2024 LUXE. All rights reserved.</p>
+              <p>&copy; {new Date().getFullYear()} {siteSettings.logoText}. All rights reserved.</p>
             </div>
           </footer>
         </>
