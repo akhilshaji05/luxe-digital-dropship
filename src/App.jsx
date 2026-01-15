@@ -587,7 +587,7 @@ function App() {
               <div className="admin-dashboard">
                 <div className="dashboard-header">
                   <div>
-                    <h2>Control Center</h2>
+                    <h2>Control Center <span style={{ fontSize: '0.8rem', opacity: 0.5, marginLeft: '10px' }}>v2.0 (Qikink Active)</span></h2>
                     <div className="admin-tabs" style={{ display: 'flex', gap: '20px', marginTop: '10px', flexWrap: 'wrap' }}>
                       <button
                         className={`tab-btn ${adminSubView === 'products' ? 'active' : ''}`}
