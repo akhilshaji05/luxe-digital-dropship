@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
+import { generateDummyProducts } from './utils/seedProducts';
 
 // SVG Icons as components to remove lucide-react dependency
 const Icons = {
@@ -35,48 +36,7 @@ const Icons = {
   )
 };
 
-const PRODUCTS = [
-  {
-    id: 1,
-    name: "Luxe Lightroom Bundle",
-    category: "digital",
-    price: 39.99,
-    image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=800&auto=format&fit=crop",
-    desc: "15+ High-end presets for professional editing.",
-    rating: 4.8,
-    fullDesc: "Unlock professional-level photo editing with our curated Lightroom preset bundle. Designed for photographers who demand excellence, these presets work perfectly for portraits, landscapes, and lifestyle shots."
-  },
-  {
-    id: 2,
-    name: "E-Commerce Blueprints",
-    category: "digital",
-    price: 24.99,
-    image: "https://images.unsplash.com/photo-1589330694653-90d18cf48c34?q=80&w=800&auto=format&fit=crop",
-    desc: "Complete guide to scaling your dropshipping store.",
-    rating: 4.9,
-    fullDesc: "The ultimate roadmap to building a 6-figure dropshipping business. Includes supplier lists, ad templates, and conversion optimization strategies that actually work in 2024."
-  },
-  {
-    id: 3,
-    name: "Nordic Minimalist Watch",
-    category: "physical",
-    price: 149.00,
-    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=800&auto=format&fit=crop",
-    desc: "Sleek stainless steel with sapphire crystal.",
-    rating: 4.7,
-    fullDesc: "A timeless piece of Scandinavian design. Featuring a matte black dial, surgical-grade stainless steel, and a scratch-resistant sapphire crystal lens. Water resistant up to 5ATM."
-  },
-  {
-    id: 4,
-    name: "Vegan Leather Carryall",
-    category: "physical",
-    price: 85.00,
-    image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?q=80&w=800&auto=format&fit=crop",
-    desc: "Sustainable materials for the modern traveler.",
-    rating: 4.6,
-    fullDesc: "Travel in style without compromise. Our carryall is crafted from premium grade vegan leather that is durable, water-resistant, and ethically sourced. Perfect for weekend getaways."
-  }
-];
+const PRODUCTS = [];
 
 function App() {
   const [view, setView] = useState('shop'); // 'shop', 'admin', 'about', 'track', 'contact'
@@ -130,31 +90,59 @@ function App() {
     contactEmail: "concierge@luxe.digital",
     contactPhone: "+1 (555) 000-LUXE",
     contactHours: "Monday - Friday: 9am - 6pm PST",
-    accentColor: "#7047eb",
+    accentColor: "#D4AF37", // Premium Gold
     heroBg: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=2000&auto=format&fit=crop",
     instagram: "https://instagram.com",
     twitter: "https://twitter.com",
     linkedin: "https://linkedin.com",
     mission: "To redefine the digital lifestyle by providing exclusive, high-performance assets and premium physical goods.",
     vision: "To become the premier global destination for curators of excellence in both the digital and physical realms.",
-    vision: "To become the premier global destination for curators of excellence in both the digital and physical realms.",
     aboutStory: "Luxe started with a simple belief: that the tools we use and the objects we surround ourselves with should reflect our standards. We curate the best so you don't have to.",
     googleSheetUrl: "",
     googleScriptUrl: "",
-    bgColor: "#111111",
-    surfaceColor: "#1a1a1a",
+    bgColor: "#050505", // Deepest Black
+    surfaceColor: "#0f0f0f", // Rich Black Surface
     fontFamily: "'Inter', sans-serif",
     btnRadius: "0"
   };
 
   const [siteSettings, setSiteSettings] = useState(() => {
     const saved = localStorage.getItem('luxe-settings');
-    return saved ? JSON.parse(saved) : initialSettings;
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // Force upgrade to Premium Gold if using old default Purple or old Dark Grey
+      if (parsed.accentColor === '#7047eb' || parsed.bgColor === '#111111') {
+        return {
+          ...parsed,
+          accentColor: initialSettings.accentColor,
+          bgColor: initialSettings.bgColor,
+          surfaceColor: initialSettings.surfaceColor
+        };
+      }
+      return parsed;
+    }
+    return initialSettings;
   });
 
   const [products, setProducts] = useState(() => {
+    console.log("🚀 Qikink Integration Version: 2.1 (Auto-Merge)");
     const saved = localStorage.getItem('luxe-products');
-    return saved ? JSON.parse(saved) : PRODUCTS;
+    let initialList = [];
+
+    if (saved) {
+      try {
+        const parsedSaved = JSON.parse(saved);
+        // Merge strategy: Keep saved, but add any new items from PRODUCTS const that aren't in saved (by ID)
+        const cachedIds = new Set(parsedSaved.map(p => p.id));
+        const newItems = PRODUCTS.filter(p => !cachedIds.has(p.id));
+        initialList = [...parsedSaved, ...newItems];
+      } catch (e) {
+        initialList = PRODUCTS;
+      }
+    } else {
+      initialList = PRODUCTS;
+    }
+    return initialList;
   });
 
   const [cart, setCart] = useState(() => {
@@ -166,6 +154,8 @@ function App() {
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [viewImage, setViewImage] = useState(''); // For product modal gallery
+  const [editingProduct, setEditingProduct] = useState(null); // For admin product editing
   const [emailSubscribed, setEmailSubscribed] = useState(false);
 
   useEffect(() => {
@@ -347,7 +337,17 @@ function App() {
   };
 
   const deleteProduct = (id) => {
-    setProducts(products.filter(p => p.id !== id));
+    console.log("Attempting to delete product:", id);
+    if (confirm("Are you sure you want to delete this product?")) {
+      console.log("User confirmed deletion.");
+      setProducts(prev => {
+        const newList = prev.filter(p => p.id !== id);
+        console.log("New product list length:", newList.length);
+        return newList;
+      });
+    } else {
+      console.log("User cancelled deletion.");
+    }
   };
 
   const addToCart = (product) => {
@@ -414,10 +414,11 @@ function App() {
   };
 
   const filteredProducts = getSortedProducts(products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (product.type && product.type.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesCategory = activeCategory === 'all' || product.category === activeCategory;
-    return matchesSearch && matchesCategory;
+    // Hide invalid or hidden products
+    if (!product.price || product.price <= 0) return false;
+
+    if (activeCategory === 'all') return product.name.toLowerCase().includes(searchQuery.toLowerCase());
+    return product.category === activeCategory && product.name.toLowerCase().includes(searchQuery.toLowerCase());
   }));
 
   const handleSubscribe = (e) => {
@@ -587,7 +588,7 @@ function App() {
               <div className="admin-dashboard">
                 <div className="dashboard-header">
                   <div>
-                    <h2>Control Center <span style={{ fontSize: '0.8rem', opacity: 0.5, marginLeft: '10px' }}>v2.0 (Qikink Active)</span></h2>
+                    <h2>Control Center <span style={{ fontSize: '0.8rem', opacity: 0.5, marginLeft: '10px' }}>v2.2 (Gold + Fixes)</span></h2>
                     <div className="admin-tabs" style={{ display: 'flex', gap: '20px', marginTop: '10px', flexWrap: 'wrap' }}>
                       <button
                         className={`tab-btn ${adminSubView === 'products' ? 'active' : ''}`}
@@ -640,63 +641,91 @@ function App() {
                 {adminSubView === 'products' ? (
                   <div className="admin-grid">
                     <div className="add-product-card">
-                      <h3>Add New Catalog Item</h3>
-                      <form onSubmit={async (e) => {
-                        e.preventDefault();
-                        const formData = new FormData(e.target);
-                        let finalImage = formData.get('imageUrl');
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                        <h3>{editingProduct ? `✏️ Edit: ${editingProduct.name}` : 'Add New Catalog Item'}</h3>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                          {!editingProduct && (
+                            <button
+                              onClick={() => {
+                                if (confirm("Are you sure you want to add 100 dummy products? This will be saved to your local storage.")) {
+                                  const newProds = generateDummyProducts(100);
+                                  setProducts(prev => [...prev, ...newProds]);
+                                  alert("✅ Added 100 products successfully!");
+                                }
+                              }}
+                              className="btn-secondary"
+                              style={{ padding: '5px 15px', fontSize: '0.8rem', background: 'rgba(212, 175, 55, 0.1)', color: 'var(--accent-color)', border: '1px solid var(--accent-color)' }}
+                            >
+                              + Seed 100 Items
+                            </button>
+                          )}
+                          {editingProduct && (
+                            <button onClick={() => setEditingProduct(null)} className="btn-secondary" style={{ padding: '5px 15px' }}>Cancel Edit</button>
+                          )}
+                        </div>
+                      </div>
 
-                        if (productUploadType === 'file') {
-                          const file = e.target.querySelector('input[type="file"]').files[0];
-                          if (file) {
-                            finalImage = await new Promise(resolve => {
-                              const reader = new FileReader();
-                              reader.onload = (ev) => resolve(ev.target.result);
-                              reader.readAsDataURL(file);
-                            });
+                      <form
+                        key={editingProduct ? editingProduct.id : 'new-product-form'}
+                        onSubmit={async (e) => {
+                          e.preventDefault();
+                          const formData = new FormData(e.target);
+
+                          // 1. Handle Image Logic
+                          let finalImage = formData.get('imageUrl') || imagePreview;
+
+                          // If file upload mode content exists (handled via onChange setting preview)
+                          if (!finalImage && productUploadType === 'file' && imagePreview) {
+                            finalImage = imagePreview;
                           }
-                        }
 
-                        // Use preview as fallback if URL/File logic fails or if preview is already set by file input
-                        if (!finalImage && imagePreview) finalImage = imagePreview;
+                          // 2. Validation
+                          const name = formData.get('name');
+                          const price = formData.get('price');
 
-                        // Custom Validation
-                        const name = formData.get('name');
-                        const price = formData.get('price');
-                        const desc = formData.get('desc');
+                          if (!name) { alert("Please enter Product Name"); return; }
+                          if (!price) { alert("Please enter Price"); return; }
+                          if (!finalImage) { alert("Please provide an Image URL or Upload"); return; }
 
-                        if (!name) { alert("Please enter a Product Name (Overview)"); setActiveProductTab('overview'); return; }
-                        if (!desc) { alert("Please enter a Tagline (Overview)"); setActiveProductTab('overview'); return; }
-                        if (!price) { alert("Please enter a Base Price (Pricing)"); setActiveProductTab('pricing'); return; }
-                        if (!finalImage) { alert("Please provide an Image (Media)"); setActiveProductTab('media'); return; }
+                          // 3. Construct Data Object
+                          const newProductData = {
+                            name: name,
+                            brand: formData.get('brand'),
+                            sku: formData.get('sku'),
+                            stock: parseInt(formData.get('stock') || 0),
+                            status: formData.get('status'),
+                            category: formData.get('category'),
+                            type: formData.get('type'),
+                            price: parseFloat(price),
+                            salePrice: formData.get('salePrice') ? parseFloat(formData.get('salePrice')) : null,
+                            tags: formData.get('tags') ? formData.get('tags').split(',').map(t => t.trim()) : [],
+                            weight: formData.get('weight'),
+                            dimensions: formData.get('dimensions'),
+                            downloadUrl: formData.get('downloadUrl'),
+                            qikinkProductId: formData.get('qikinkProductId'),
+                            qikinkVariantId: formData.get('qikinkVariantId'),
+                            fulfillmentType: formData.get('fulfillmentType') || 'self',
+                            image: finalImage,
+                            // Ensure we have an array for galleries
+                            images: [finalImage],
+                            desc: formData.get('desc') || 'No description',
+                            fullDesc: formData.get('fullDesc') || '',
+                            sizes: formData.get('sizes') ? formData.get('sizes').split(',').map(s => s.trim()).filter(s => s) : [],
+                            colors: formData.get('colors') ? formData.get('colors').split(',').map(c => c.trim()).filter(c => c) : [],
+                            rating: editingProduct ? editingProduct.rating : 5.0,
+                            id: editingProduct ? editingProduct.id : Date.now()
+                          };
 
-                        addProduct({
-                          name: formData.get('name'),
-                          brand: formData.get('brand'),
-                          sku: formData.get('sku'),
-                          stock: parseInt(formData.get('stock') || 0),
-                          status: formData.get('status'),
-                          category: formData.get('category'),
-                          type: formData.get('type'),
-                          price: parseFloat(formData.get('price')),
-                          salePrice: formData.get('salePrice') ? parseFloat(formData.get('salePrice')) : null, // New Field
-                          tags: formData.get('tags') ? formData.get('tags').split(',').map(t => t.trim()) : [], // New Field
-                          weight: formData.get('weight'),
-                          dimensions: formData.get('dimensions'),
-                          downloadUrl: formData.get('downloadUrl'),
-                          qikinkProductId: formData.get('qikinkProductId'), // Qikink Integration
-                          qikinkVariantId: formData.get('qikinkVariantId'), // Qikink Integration
-                          fulfillmentType: formData.get('fulfillmentType') || 'self', // 'self' or 'qikink'
-                          image: finalImage,
-                          desc: formData.get('desc'),
-                          fullDesc: formData.get('fullDesc'),
-                          sizes: formData.get('sizes') ? formData.get('sizes').split(',').map(s => s.trim()).filter(s => s) : [],
-                          colors: formData.get('colors') ? formData.get('colors').split(',').map(c => c.trim()).filter(c => c) : []
-                        });
-                        e.target.reset();
-                        setImagePreview('');
-                        alert("Product Added Successfully!");
-                      }}>
+                          // 4. Update or Add
+                          if (editingProduct) {
+                            updateProduct(newProductData);
+                          } else {
+                            addProduct(newProductData);
+                            e.target.reset();
+                            setImagePreview('');
+                            alert("✅ Product Added Successfully!");
+                          }
+                        }}>
 
                         {/* Product Editor Tabs */}
                         <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px', overflowX: 'auto' }}>
@@ -915,7 +944,18 @@ function App() {
                     </div>
 
                     <div className="product-list-table">
-                      <h3>Live Catalog ({products.length})</h3>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                        <h3>Live Catalog ({products.length})</h3>
+                        {products.length > 0 && (
+                          <button className="delete-btn" style={{ fontSize: '0.8rem', padding: '5px 10px' }} onClick={() => {
+                            if (confirm("⚠️ DANGER: This will delete ALL products from your store. Are you sure?")) {
+                              if (confirm("Double Check: Really delete EVERYTHING?")) {
+                                setProducts([]);
+                              }
+                            }
+                          }}>Delete All</button>
+                        )}
+                      </div>
                       <div className="table-scroll">
                         {products.map(p => (
                           <div key={p.id} className="admin-prod-row">
@@ -924,6 +964,11 @@ function App() {
                               <h4>{p.name}</h4>
                               <span>${p.price}</span>
                             </div>
+                            <button onClick={() => {
+                              setEditingProduct(p);
+                              // Scroll to top to see form
+                              window.scrollTo({ top: 0, behavior: 'smooth' });
+                            }} className="btn-secondary" style={{ marginRight: '10px', fontSize: '0.8rem', padding: '5px 10px' }}>Edit</button>
                             <button onClick={() => deleteProduct(p.id)} className="delete-btn">Delete</button>
                           </div>
                         ))}
@@ -1297,8 +1342,31 @@ function App() {
                     <div className="settings-section" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', padding: '20px', borderRadius: '10px', marginBottom: '30px' }}>
                       <h4 style={{ color: '#fff', marginBottom: '10px' }}>Quick Import from Qikink</h4>
                       <p style={{ fontSize: '0.9rem', opacity: 0.9, color: '#fff', marginBottom: '20px' }}>
-                        Copy product details from your Qikink dashboard and paste below to add multiple products quickly.
+                        Upload your Qikink Product CSV/Excel file or paste the details below.
                       </p>
+
+                      <div style={{ marginBottom: '20px', padding: '20px', border: '2px dashed rgba(255,255,255,0.3)', borderRadius: '10px', textAlign: 'center', background: 'rgba(255,255,255,0.05)', cursor: 'pointer', position: 'relative' }}>
+                        <input type="file" accept=".csv, .txt" onChange={(e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onload = (ev) => {
+                              const text = ev.target.result;
+                              // Set the text into the textarea for processing
+                              const textArea = document.querySelector('textarea[name="bulkImport"]');
+                              if (textArea) {
+                                textArea.value = text;
+                                // Trigger change if needed or just alert
+                                alert("✅ File loaded! Click 'Import Products' to process.");
+                              }
+                            };
+                            reader.readAsText(file);
+                          }
+                        }} style={{ position: 'absolute', width: '100%', height: '100%', top: 0, left: 0, opacity: 0, cursor: 'pointer' }} />
+                        <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📄</div>
+                        <span style={{ color: '#fff', fontWeight: 'bold' }}>Click to Upload CSV File</span>
+                        <p style={{ fontSize: '0.8rem', opacity: 0.6, margin: '5px 0 0' }}>Supports Qikink Product Exports</p>
+                      </div>
 
                       <form onSubmit={(e) => {
                         e.preventDefault();
@@ -1316,6 +1384,94 @@ function App() {
                           let imported = 0;
 
                           lines.forEach(line => {
+                            // 1. Try Parsing Raw Qikink CSV Format
+                            // Format: "","ID","Details...","Cost?","SellingPrice"
+                            if (line.includes('","')) {
+                              try {
+                                const cleanLine = line.replace(/^"|"$/g, ''); // Remove start/end quotes
+                                const rawParts = cleanLine.split('","');
+
+                                // Qikink CSV usually has ID at index 1, Details at 2, Price at last
+                                if (rawParts.length >= 4) {
+                                  const qId = rawParts[1]; // Product ID
+                                  const details = rawParts[2]; // "Unisex T-Shirt Male..."
+
+                                  // Extract Name: Get text before "Male", "Female", "Unisex" if repeated, or "Attributes"
+                                  // This regex tries to grab the clean product name
+                                  const nameMatch = details.match(/^(.*?)(?=\s+(Male|Female|Colors|Size|Variant)|$)/i);
+                                  const name = nameMatch ? nameMatch[0].trim() : details.substring(0, 30);
+
+                                  // Smart Image Assignment
+                                  let imageUrl = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400'; // Default (Watch/Generic)
+                                  const lowerName = name.toLowerCase();
+
+                                  if (lowerName.includes('hoodie') || lowerName.includes('sweatshirt')) {
+                                    imageUrl = 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=400'; // Hoodie
+                                  } else if (lowerName.includes('t-shirt') || lowerName.includes('tee') || lowerName.includes('shirt')) {
+                                    imageUrl = 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=400'; // T-Shirt black
+                                  } else if (lowerName.includes('mug') || lowerName.includes('cup')) {
+                                    imageUrl = 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=400'; // Mug
+                                  } else if (lowerName.includes('poster') || lowerName.includes('frame')) {
+                                    imageUrl = 'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=400'; // Poster
+                                  }
+
+                                  // Extract Price: Last column usually contains "500 - 500" or similar
+                                  const priceRaw = rawParts[rawParts.length - 1];
+                                  const priceMatch = priceRaw.match(/(\d+)/);
+                                  const price = priceMatch ? parseFloat(priceMatch[0]) : 599;
+
+                                  // Extract Sizes: Look for "Size : start - end"
+                                  let sizes = ['S', 'M', 'L', 'XL'];
+                                  const sizeMatch = details.match(/Size\s*:\s*([A-Z0-9]+)\s*-\s*([A-Z0-9]+)/i);
+                                  if (sizeMatch) {
+                                    // If range is same "XS - XS", just use that
+                                    if (sizeMatch[1] === sizeMatch[2]) {
+                                      sizes = [sizeMatch[1]];
+                                    } else {
+                                      // It implies a range, but for safety let's include standard sizes + the boundaries
+                                      sizes = ['S', 'M', 'L', 'XL', 'XXL'];
+                                      if (!sizes.includes(sizeMatch[1])) sizes.unshift(sizeMatch[1]);
+                                    }
+                                  }
+
+                                  // Extract Colors count: "2 Colors"
+                                  // Since Qikink CSV doesn't list exact colors, we'll provide standard placeholders 
+                                  // that the user can verify in the dashboard later.
+                                  let colors = ['Black', 'White'];
+                                  const colorCountMatch = details.match(/(\d+)\s*Colors/i);
+                                  if (colorCountMatch) {
+                                    const count = parseInt(colorCountMatch[1]);
+                                    if (count > 2) colors = ['Black', 'White', 'Navy', 'Red', 'Grey', 'Blue'].slice(0, count);
+                                    if (count === 1) colors = ['Black'];
+                                  }
+
+                                  addProduct({
+                                    name: name,
+                                    price: price,
+                                    image: imageUrl,
+                                    desc: 'Official Qikink Merchandise',
+                                    fullDesc: details,
+                                    category: 'physical',
+                                    type: 'Custom',
+                                    qikinkProductId: qId,
+                                    qikinkVariantId: '',
+                                    fulfillmentType: 'qikink',
+                                    stock: 999,
+                                    status: 'Active',
+                                    brand: 'Qikink',
+                                    sku: `QK-${qId}-${Date.now()}`,
+                                    sizes: sizes,
+                                    colors: colors
+                                  });
+                                  imported++;
+                                  return; // Successfully processed as Qikink CSV
+                                }
+                              } catch (err) {
+                                console.log("Failed to parse Qikink row:", line, err);
+                              }
+                            }
+
+                            // 2. Standard Manual Format (Name,Price,Image...)
                             const parts = line.split(',').map(p => p.trim());
                             if (parts.length >= 3) {
                               addProduct({
@@ -1418,8 +1574,103 @@ function App() {
                         <li><strong>Quick Add:</strong> Add one product at a time for testing</li>
                         <li><strong>Edit Later:</strong> Go to Inventory tab to add images, descriptions, variants</li>
                         <li><strong>Qikink IDs:</strong> Find in your Qikink dashboard product details</li>
-                        <li><strong>Auto-Sync (Future):</strong> We'll add Qikink API integration for automatic sync</li>
                       </ul>
+
+                      <div className="settings-section" style={{ marginTop: '30px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '20px' }}>
+                        <h4 style={{ color: 'var(--accent-color)', marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          🔄 Automatic API Sync
+                          <span style={{ fontSize: '0.7rem', background: '#0f0', color: '#000', padding: '2px 6px', borderRadius: '4px' }}>Sandbox Ready</span>
+                        </h4>
+                        <p style={{ fontSize: '0.8rem', opacity: 0.6, marginBottom: '20px' }}>
+                          Connect your Qikink account to sync products automatically without CSV files.
+                        </p>
+
+                        <div style={{ display: 'grid', gap: '15px', gridTemplateColumns: '1fr 1fr' }}>
+                          <input id="qk-client-id" defaultValue="811000394556820" placeholder="Qikink Client ID" style={{ padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                          <input id="qk-secret" type="password" defaultValue="368ffa473c5c94f841ae24eeb2b268c7163735b13948d89dc41d56ecd06b654d" placeholder="Qikink Secret" style={{ padding: '10px', background: '#111', border: '1px solid var(--border-color)', color: '#fff', borderRadius: '5px' }} />
+                        </div>
+                        <button className="btn-secondary" style={{ marginTop: '15px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}
+                          onClick={async () => {
+                            const clientId = document.getElementById('qk-client-id').value;
+                            const clientSecret = document.getElementById('qk-secret').value;
+
+                            if (!clientId) { alert('Please enter Client ID'); return; }
+
+                            try {
+                              alert("🔄 Connecting to Qikink Sandbox (via Private Proxy)...");
+
+                              // 1. Get Token (via Proxy)
+                              const tokenResponse = await fetch('/api/qikink-proxy', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                  endpoint: 'https://sandbox.qikink.com/api/token',
+                                  method: 'POST',
+                                  body: { client_id: clientId, client_secret: clientSecret }
+                                })
+                              });
+
+                              if (!tokenResponse.ok) {
+                                let errText = await tokenResponse.text();
+                                try { errText = JSON.parse(errText).error || errText; } catch (e) { }
+                                throw new Error('Auth Failed: ' + errText);
+                              }
+
+                              const tokenData = await tokenResponse.json();
+                              const accessToken = tokenData.access_token || tokenData.token;
+
+                              alert("✅ Auth Success! Fetching Catalog...");
+
+                              // 2. Get Products (via Proxy with Auth Header)
+                              const productResponse = await fetch('/api/qikink-proxy', {
+                                method: 'POST', // We POST to our proxy to tell it what to do
+                                headers: {
+                                  'Content-Type': 'application/json',
+                                  'Authorization': `Bearer ${accessToken}`
+                                },
+                                body: JSON.stringify({
+                                  endpoint: 'https://sandbox.qikink.com/api/v1/products',
+                                  method: 'GET'
+                                })
+                              });
+
+                              if (!productResponse.ok) throw new Error('Fetch Products Failed');
+                              const data = await productResponse.json();
+                              const productsList = data.products || data.data || [];
+
+                              if (productsList.length > 0) {
+                                let count = 0;
+                                productsList.forEach(p => {
+                                  addProduct({
+                                    name: p.name || 'Qikink Item',
+                                    price: parseFloat(p.selling_price || p.price || 599),
+                                    image: p.image_url || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400',
+                                    desc: p.description || 'Verified Qikink Product',
+                                    fullDesc: p.description,
+                                    status: 'Active',
+                                    stock: 999,
+                                    category: 'physical',
+                                    fulfillmentType: 'qikink',
+                                    qikinkProductId: p.id,
+                                    colors: ['Black', 'White', 'Navy'],
+                                    sizes: ['S', 'M', 'L', 'XL'],
+                                    images: p.images ? p.images : [p.image_url] // Capture all images if available
+                                  });
+                                  count++;
+                                });
+                                alert(`✅ Successfully synced ${count} products from API!`);
+                              } else {
+                                alert('Connected, but no products found in your Qikink Sandbox account.');
+                              }
+                            } catch (err) {
+                              console.error(err);
+                              alert("⚠️ API Error: " + err.message + "\n\nTry using the 'Manual Import' with CSV if this persists.");
+                            }
+                          }}
+                        >
+                          <Icons.Cart /> Connect & Sync Products
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ) : null
@@ -1690,7 +1941,7 @@ function App() {
                 <div className="product-grid">
                   {filteredProducts.map(product => (
                     <div key={product.id} className="product-card">
-                      <div className="card-image" onClick={() => setSelectedProduct(product)} style={{ position: 'relative' }}>
+                      <div className="card-image" onClick={() => { setSelectedProduct(product); setViewImage(product.image); }} style={{ position: 'relative' }}>
                         {currentUser && (
                           <button onClick={(e) => { e.stopPropagation(); toggleWishlist(product.id); }} style={{ position: 'absolute', top: '10px', right: '10px', zIndex: 10, background: 'rgba(0,0,0,0.6)', border: 'none', borderRadius: '50%', width: '35px', height: '35px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: wishlist.includes(product.id) ? 'var(--accent-color)' : '#fff' }}>
                             <Icons.Heart fill={wishlist.includes(product.id)} />
@@ -1741,7 +1992,30 @@ function App() {
                       <button onClick={() => toggleWishlist(selectedProduct.id)} style={{ position: 'absolute', top: '20px', left: '20px', zIndex: 10, background: 'rgba(0,0,0,0.6)', border: 'none', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: wishlist.includes(selectedProduct.id) ? 'var(--accent-color)' : '#fff' }}>
                         <Icons.Heart fill={wishlist.includes(selectedProduct.id)} />
                       </button>
-                      <img src={selectedProduct.image} alt={selectedProduct.name} />
+                      <img src={viewImage || selectedProduct.image} alt={selectedProduct.name} style={{ width: '100%', height: '400px', objectFit: 'contain' }} />
+
+                      {/* Thumbnail Gallery */}
+                      {selectedProduct.images && selectedProduct.images.length > 1 && (
+                        <div className="modal-thumbnails" style={{ display: 'flex', gap: '10px', marginTop: '15px', overflowX: 'auto', padding: '5px' }}>
+                          {selectedProduct.images.map((img, idx) => (
+                            <img
+                              key={idx}
+                              src={img}
+                              alt={`Thumbnail ${idx}`}
+                              onClick={() => setViewImage(img)}
+                              style={{
+                                width: '60px',
+                                height: '60px',
+                                objectFit: 'cover',
+                                borderRadius: '5px',
+                                cursor: 'pointer',
+                                border: viewImage === img ? '2px solid var(--accent-color)' : '1px solid transparent',
+                                opacity: viewImage === img ? 1 : 0.6
+                              }}
+                            />
+                          ))}
+                        </div>
+                      )}
                     </div>
                     <div className="modal-details">
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>

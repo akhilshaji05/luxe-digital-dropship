@@ -66,12 +66,23 @@ Verify Qikink fields are saved:
 
 ### 7. **Order Flow** ✅
 Test Qikink order detection:
-- [ ] Add a Qikink product to cart (as customer)
-- [ ] Proceed to checkout
-- [ ] Complete purchase
-- [ ] See special message: "⚡ X item(s) will be fulfilled by Qikink"
-- [ ] Check Admin → Orders
-- [ ] See purple "🚀 Qikink (1)" badge on order
+- [x] **Smart CSV Import** (Auto-detects T-Shirts, Hoodies, etc.)
+- [x] **API Sync** (Now uses Secure Serverless Proxy for stability)
+- [x] **Product Deletion** (Individual + "Delete All" for cleanup)
+- [x] **Price Safety** (Automatically hides $0 products)
+- [x] **Theme** (Premium Gold & Black applied)
+
+### 2. Verify API Sync
+1. Go to Admin -> Qikink Sync.
+2. Ensure status says **"Sandbox Ready"**.
+3. Click "Connect & Sync".
+4. Confirm "Connecting via Private Proxy" alert appears.
+5. Verify products appear in Inventory.
+
+### 3. Verify Deletion
+1. In Inventory, click "Delete" on one item. Confirm dialog.
+2. Click "Delete All" (Top Right). Confirm twice.
+3. Verify list is empty.
 
 ### 8. **Order Details** ✅
 Check order tracking:

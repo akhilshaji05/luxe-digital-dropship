@@ -1,5 +1,16 @@
 {
+    "framework": "vite",
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
     "rewrites": [
+        {
+            "source": "/wp-json/wc/v3(.*)",
+            "destination": "/api/wc-v3"
+        },
+        {
+            "source": "/wp-json(.*)",
+            "destination": "/api/wp-json"
+        },
         {
             "source": "/(.*)",
             "destination": "/index.html"
