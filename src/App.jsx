@@ -82,6 +82,11 @@ function App() {
     surfaceColor: "#0f0f0f",
     fontFamily: "'Inter', sans-serif",
     heroBg: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=2000&auto=format&fit=crop",
+    buttonRadius: "4px",
+    cardRadius: "12px",
+    glassBlur: "20px",
+    glassOpacity: "0.03",
+    fontScale: "100%",
     bankName: "Luxe Reserve Bank",
     bankAccount: "**** **** **** 8890",
     bankHolder: "LUXE ELITE ADMIN",
@@ -126,6 +131,32 @@ function App() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [editingProduct, setEditingProduct] = useState(null);
 
+  const THEMES = {
+    empire: { accentColor: '#D4AF37', bgColor: '#050505', surfaceColor: '#0f0f0f', buttonRadius: '2px', cardRadius: '4px', glassBlur: '25px', glassOpacity: '0.04' },
+    neon: { accentColor: '#00f3ff', bgColor: '#0a0a14', surfaceColor: '#161625', buttonRadius: '50px', cardRadius: '20px', glassBlur: '10px', glassOpacity: '0.1' },
+    nordic: { accentColor: '#8899ac', bgColor: '#f4f7f6', surfaceColor: '#ffffff', buttonRadius: '0px', cardRadius: '0px', glassBlur: '5px', glassOpacity: '0.2' },
+    royal: { accentColor: '#c41e3a', bgColor: '#1a0f0f', surfaceColor: '#2a1a1a', buttonRadius: '12px', cardRadius: '30px', glassBlur: '15px', glassOpacity: '0.08' }
+  };
+
+  const applyThemePrompt = (prompt) => {
+    const p = prompt.toLowerCase();
+    let newSettings = { ...siteSettings };
+    if (p.includes('neon') || p.includes('cyber') || p.includes('future')) Object.assign(newSettings, THEMES.neon);
+    else if (p.includes('clean') || p.includes('minimal') || p.includes('white') || p.includes('nordic')) {
+      Object.assign(newSettings, THEMES.nordic);
+      newSettings.logoText = "MINIMAL LUXE";
+    }
+    else if (p.includes('royal') || p.includes('red') || p.includes('classic')) Object.assign(newSettings, THEMES.royal);
+    else if (p.includes('dark') || p.includes('luxury') || p.includes('gold') || p.includes('empire')) Object.assign(newSettings, THEMES.empire);
+
+    if (p.includes('round')) { newSettings.buttonRadius = '50px'; newSettings.cardRadius = '40px'; }
+    if (p.includes('sharp')) { newSettings.buttonRadius = '0px'; newSettings.cardRadius = '0px'; }
+    if (p.includes('soft')) { newSettings.glassOpacity = '0.01'; newSettings.glassBlur = '40px'; }
+
+    setSiteSettings(newSettings);
+    alert("Design algorithm applied successfully.");
+  };
+
   useEffect(() => { localStorage.setItem('luxe-cart', JSON.stringify(cart)); }, [cart]);
   useEffect(() => { localStorage.setItem('luxe-products', JSON.stringify(products)); }, [products]);
   useEffect(() => {
@@ -134,6 +165,11 @@ function App() {
     document.documentElement.style.setProperty('--bg-color', siteSettings.bgColor);
     document.documentElement.style.setProperty('--surface-color', siteSettings.surfaceColor);
     document.documentElement.style.setProperty('--font-main', siteSettings.fontFamily);
+    document.documentElement.style.setProperty('--btn-radius', siteSettings.buttonRadius);
+    document.documentElement.style.setProperty('--card-radius', siteSettings.cardRadius);
+    document.documentElement.style.setProperty('--glass-blur', siteSettings.glassBlur);
+    document.documentElement.style.setProperty('--glass-opacity', siteSettings.glassOpacity);
+    document.documentElement.style.setProperty('--font-scale', siteSettings.fontScale);
   }, [siteSettings]);
   useEffect(() => { localStorage.setItem('luxe-orders', JSON.stringify(orders)); }, [orders]);
   useEffect(() => { localStorage.setItem('luxe-user', JSON.stringify(currentUser)); }, [currentUser]);
@@ -301,60 +337,82 @@ function App() {
                 )}
 
                 {adminSubView === 'settings' && (
-                  <div className="glass-panel" style={{ padding: '30px', display: 'flex', flexDirection: 'column', gap: '40px' }}>
-                    <section>
-                      <h3 className="gold-text" style={{ marginBottom: '20px' }}>BRANDING & DESIGN</h3>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                  <div className="design-lab animate-fade" style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+                    <div className="glass-panel" style={{ padding: '30px' }}>
+                      <h3 className="gold-text" style={{ marginBottom: '20px' }}>DESIGN PROMPT INTERPRETER</h3>
+                      <div style={{ display: 'flex', gap: '15px' }}>
+                        <input
+                          id="design-prompt"
+                          placeholder="Describe your desired aesthetic... (e.g. 'Cyberpunk with neon cyan and sharp edges')"
+                          className="premium-input"
+                          onKeyDown={e => e.key === 'Enter' && applyThemePrompt(e.target.value)}
+                        />
+                        <button className="premium-btn" onClick={() => applyThemePrompt(document.getElementById('design-prompt').value)}>Transform</button>
+                      </div>
+                      <p style={{ fontSize: '0.7rem', opacity: 0.5, marginTop: '10px' }}>Algorithms will interpret your intent and update site parameters instantly.</p>
+                    </div>
+
+                    <div className="glass-panel" style={{ padding: '30px' }}>
+                      <h3 className="gold-text" style={{ marginBottom: '20px' }}>THEME PRESETS</h3>
+                      <div className="theme-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '20px' }}>
+                        {Object.keys(THEMES).map(t => (
+                          <button key={t} onClick={() => { setSiteSettings({ ...siteSettings, ...THEMES[t] }); alert(`${t.toUpperCase()} sequence initiated.`); }} className="glass-panel theme-card" style={{
+                            padding: '20px', textAlign: 'center', border: siteSettings.accentColor === THEMES[t].accentColor ? '1px solid var(--accent-color)' : '1px solid transparent'
+                          }}>
+                            <div style={{ width: '40px', height: '40px', background: THEMES[t].accentColor, margin: '0 auto 10px', borderRadius: THEMES[t].buttonRadius }} />
+                            <div style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>{t.toUpperCase()}</div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="glass-panel" style={{ padding: '30px' }}>
+                      <h3 className="gold-text" style={{ marginBottom: '30px' }}>GRANULAR DESIGN TOKENS</h3>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
+                          <h4 style={{ fontSize: '0.8rem', opacity: 0.6 }}>BASE ARCHITECTURE</h4>
+                          <div>
+                            <label style={{ fontSize: '0.65rem' }}>BUTTON RADIUS ({siteSettings.buttonRadius})</label>
+                            <input type="range" min="0" max="50" value={parseInt(siteSettings.buttonRadius)} onChange={e => setSiteSettings({ ...siteSettings, buttonRadius: `${e.target.value}px` })} style={{ width: '100%' }} />
+                          </div>
+                          <div>
+                            <label style={{ fontSize: '0.65rem' }}>CARD RADIUS ({siteSettings.cardRadius})</label>
+                            <input type="range" min="0" max="100" value={parseInt(siteSettings.cardRadius)} onChange={e => setSiteSettings({ ...siteSettings, cardRadius: `${e.target.value}px` })} style={{ width: '100%' }} />
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
+                          <h4 style={{ fontSize: '0.8rem', opacity: 0.6 }}>OPTICAL EFFECTS</h4>
+                          <div>
+                            <label style={{ fontSize: '0.65rem' }}>GLASS BLUR ({siteSettings.glassBlur})</label>
+                            <input type="range" min="0" max="100" value={parseInt(siteSettings.glassBlur)} onChange={e => setSiteSettings({ ...siteSettings, glassBlur: `${e.target.value}px` })} style={{ width: '100%' }} />
+                          </div>
+                          <div>
+                            <label style={{ fontSize: '0.65rem' }}>GLASS OPACITY ({siteSettings.glassOpacity})</label>
+                            <input type="range" min="0" max="0.5" step="0.01" value={parseFloat(siteSettings.glassOpacity)} onChange={e => setSiteSettings({ ...siteSettings, glassOpacity: e.target.value.toString() })} style={{ width: '100%' }} />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="glass-panel" style={{ padding: '30px' }}>
+                      <h3 className="gold-text" style={{ marginBottom: '20px' }}>LEGACY CORE PARAMETERS</h3>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px' }}>
                         <div>
                           <label style={{ fontSize: '0.6rem', opacity: 0.5 }}>LOGO TEXT</label>
                           <input value={siteSettings.logoText} onChange={e => setSiteSettings({ ...siteSettings, logoText: e.target.value })} className="premium-input" />
                         </div>
                         <div>
-                          <label style={{ fontSize: '0.6rem', opacity: 0.5 }}>ACCENT COLOR</label>
-                          <input type="color" value={siteSettings.accentColor} onChange={e => setSiteSettings({ ...siteSettings, accentColor: e.target.value })} className="premium-input" style={{ height: '50px', padding: '5px' }} />
+                          <label style={{ fontSize: '0.6rem', opacity: 0.5 }}>ACCENT</label>
+                          <input type="color" value={siteSettings.accentColor} onChange={e => setSiteSettings({ ...siteSettings, accentColor: e.target.value })} className="premium-input" style={{ height: '45px', padding: '5px' }} />
                         </div>
                         <div>
                           <label style={{ fontSize: '0.6rem', opacity: 0.5 }}>BACKGROUND</label>
-                          <input type="color" value={siteSettings.bgColor} onChange={e => setSiteSettings({ ...siteSettings, bgColor: e.target.value })} className="premium-input" style={{ height: '50px', padding: '5px' }} />
-                        </div>
-                        <div>
-                          <label style={{ fontSize: '0.6rem', opacity: 0.5 }}>SURFACE</label>
-                          <input type="color" value={siteSettings.surfaceColor} onChange={e => setSiteSettings({ ...siteSettings, surfaceColor: e.target.value })} className="premium-input" style={{ height: '50px', padding: '5px' }} />
+                          <input type="color" value={siteSettings.bgColor} onChange={e => setSiteSettings({ ...siteSettings, bgColor: e.target.value })} className="premium-input" style={{ height: '45px', padding: '5px' }} />
                         </div>
                       </div>
-                    </section>
+                    </div>
 
-                    <section>
-                      <h3 className="gold-text" style={{ marginBottom: '20px' }}>HERO SECTION</h3>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                        <input value={siteSettings.heroTitle} onChange={e => setSiteSettings({ ...siteSettings, heroTitle: e.target.value })} placeholder="Main Headline" className="premium-input" />
-                        <textarea value={siteSettings.heroSubtitle} onChange={e => setSiteSettings({ ...siteSettings, heroSubtitle: e.target.value })} placeholder="Sub-headline" className="premium-input" />
-                        <input value={siteSettings.heroBg} onChange={e => setSiteSettings({ ...siteSettings, heroBg: e.target.value })} placeholder="Background Image URI" className="premium-input" />
-                      </div>
-                    </section>
-
-                    <section>
-                      <h3 className="gold-text" style={{ marginBottom: '20px' }}>FINANCIAL PARAMETERS</h3>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                        {['bankName', 'bankAccount', 'bankHolder', 'bankIfsc'].map(key => (
-                          <div key={key}>
-                            <label style={{ fontSize: '0.6rem', opacity: 0.5 }}>{key.toUpperCase()}</label>
-                            <input value={siteSettings[key]} onChange={e => setSiteSettings({ ...siteSettings, [key]: e.target.value })} className="premium-input" />
-                          </div>
-                        ))}
-                      </div>
-                    </section>
-
-                    <section>
-                      <h3 className="gold-text" style={{ marginBottom: '20px' }}>CONCIERGE & PHILOSOPHY</h3>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                        <input value={siteSettings.contactEmail} onChange={e => setSiteSettings({ ...siteSettings, contactEmail: e.target.value })} placeholder="Contact Email" className="premium-input" />
-                        <input value={siteSettings.contactPhone} onChange={e => setSiteSettings({ ...siteSettings, contactPhone: e.target.value })} placeholder="Contact Phone" className="premium-input" />
-                        <textarea value={siteSettings.aboutStory} onChange={e => setSiteSettings({ ...siteSettings, aboutStory: e.target.value })} placeholder="Our Story" className="premium-input" style={{ gridColumn: 'span 2' }} />
-                      </div>
-                    </section>
-
-                    <button onClick={() => alert("Global parameters synchronized")} className="premium-btn">Synchronize System</button>
+                    <button onClick={() => alert("All parameters synchronized manually.")} className="premium-btn">Force Sync</button>
                   </div>
                 )}
               </main>
