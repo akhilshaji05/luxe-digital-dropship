@@ -25,8 +25,8 @@ export default function handler(req, res) {
     if (rest_route) {
         if (rest_route.includes('/wc/v3/products')) return res.status(200).json([]);
         if (rest_route.includes('/wc/v3')) return res.status(200).json({ namespace: "wc/v3", routes: { "/wc/v3": { "namespace": "wc/v3" } } });
-        if (rest_route === '/' || rest_route === '') return res.status(200).json({ name: "Luxe Digital Store", url: `https://${req.headers.host}` });
-        if (rest_route.includes('wp/v2')) return res.status(200).json({ namespace: "wp/v2", routes: {} });
+        if (rest_route === '/' || rest_route === '') { /* fall through to main index */ }
+        else if (rest_route.includes('wp/v2')) return res.status(200).json({ namespace: "wp/v2", routes: {} });
     }
 
     // Mimic WordPress REST API Index

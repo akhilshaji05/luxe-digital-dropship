@@ -1,5 +1,24 @@
 {
     "framework": "vite",
+    "headers": [
+        {
+            "source": "/(.*)",
+            "headers": [
+                {
+                    "key": "X-Powered-By",
+                    "value": "PHP/8.2.0"
+                },
+                {
+                    "key": "Link",
+                    "value": "<https://luxe-digital-dropship.vercel.app/wp-json/>; rel=\"https://api.w.org/\""
+                },
+                {
+                    "key": "X-Pingback",
+                    "value": "https://luxe-digital-dropship.vercel.app/xmlrpc.php"
+                }
+            ]
+        }
+    ],
     "buildCommand": "npm run build",
     "outputDirectory": "dist",
     "rewrites": [
