@@ -141,14 +141,18 @@ function App() {
     empire: { accentColor: '#D4AF37', bgColor: '#050505', surfaceColor: '#0f0f0f', textColor: '#ffffff', textMuted: 'rgba(255, 255, 255, 0.6)', borderColor: 'rgba(212, 175, 55, 0.15)', glassBorder: 'rgba(212, 175, 55, 0.2)', buttonRadius: '4px', cardRadius: '12px', glassBlur: '20px', glassOpacity: '0.03' },
     neon: { accentColor: '#00f2ff', bgColor: '#000814', surfaceColor: '#001d3d', textColor: '#ffffff', textMuted: 'rgba(0, 242, 255, 0.5)', borderColor: 'rgba(0, 242, 255, 0.2)', glassBorder: 'rgba(0, 242, 255, 0.3)', buttonRadius: '0px', cardRadius: '0px', glassBlur: '10px', glassOpacity: '0.1' },
     nordic: { accentColor: '#2d3436', bgColor: '#f5f6fa', surfaceColor: '#ffffff', textColor: '#2d3436', textMuted: 'rgba(45, 52, 54, 0.6)', borderColor: 'rgba(0, 0, 0, 0.05)', glassBorder: 'rgba(0, 0, 0, 0.1)', buttonRadius: '25px', cardRadius: '20px', glassBlur: '40px', glassOpacity: '0.05' },
-    royal: { accentColor: '#e84118', bgColor: '#192a56', surfaceColor: '#273c75', textColor: '#ffffff', textMuted: 'rgba(255, 255, 255, 0.7)', borderColor: 'rgba(232, 65, 24, 0.3)', glassBorder: 'rgba(232, 65, 24, 0.4)', buttonRadius: '8px', cardRadius: '16px', glassBlur: '25px', glassOpacity: '0.08' }
+    royal: { accentColor: '#e84118', bgColor: '#192a56', surfaceColor: '#273c75', textColor: '#ffffff', textMuted: 'rgba(255, 255, 255, 0.7)', borderColor: 'rgba(232, 65, 24, 0.3)', glassBorder: 'rgba(232, 65, 24, 0.4)', buttonRadius: '8px', cardRadius: '16px', glassBlur: '25px', glassOpacity: '0.08' },
+    ajio: { accentColor: '#2c4152', bgColor: '#ffffff', surfaceColor: '#f4f4f4', textColor: '#2c4152', textMuted: 'rgba(44, 65, 82, 0.6)', borderColor: 'rgba(0, 0, 0, 0.1)', glassBorder: 'rgba(0, 0, 0, 0.1)', buttonRadius: '0px', cardRadius: '0px', glassBlur: '0px', glassOpacity: '0', fontFamily: "'Inter', sans-serif" }
   };
 
   const applyThemePrompt = (prompt) => {
     const p = prompt.toLowerCase();
     let newSettings = { ...siteSettings };
     if (p.includes('neon') || p.includes('cyber') || p.includes('future')) Object.assign(newSettings, THEMES.neon);
-    else if (p.includes('clean') || p.includes('minimal') || p.includes('white') || p.includes('nordic')) {
+    else if (p.includes('ajio') || p.includes('fashion') || (p.includes('clean') && p.includes('white'))) {
+      Object.assign(newSettings, THEMES.ajio);
+    }
+    else if (p.includes('minimal') || p.includes('nordic')) {
       Object.assign(newSettings, THEMES.nordic);
       newSettings.logoText = "MINIMAL LUXE";
     }
