@@ -1323,14 +1323,13 @@
 
 :root {
   --accent-color: #D4AF37;
-  /* Empire Gold */
-  --bg-dark: #050505;
-  /* Deep Onyx */
+  --bg-color: #050505;
   --surface-color: #0f0f0f;
-  /* Rich Black Surface */
   --border-color: rgba(212, 175, 55, 0.15);
   --glass-bg: rgba(255, 255, 255, var(--glass-opacity, 0.03));
   --glass-border: rgba(212, 175, 55, 0.2);
+  --text-color: #ffffff;
+  --text-muted: rgba(255, 255, 255, 0.6);
   --font-serif: 'Playfair Display', serif;
   --btn-radius: 4px;
   --card-radius: 12px;

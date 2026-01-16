@@ -138,10 +138,10 @@ function App() {
   const [editingProduct, setEditingProduct] = useState(null);
 
   const THEMES = {
-    empire: { accentColor: '#D4AF37', bgColor: '#050505', surfaceColor: '#0f0f0f', buttonRadius: '2px', cardRadius: '4px', glassBlur: '25px', glassOpacity: '0.04' },
-    neon: { accentColor: '#00f3ff', bgColor: '#0a0a14', surfaceColor: '#161625', buttonRadius: '50px', cardRadius: '20px', glassBlur: '10px', glassOpacity: '0.1' },
-    nordic: { accentColor: '#8899ac', bgColor: '#f4f7f6', surfaceColor: '#ffffff', buttonRadius: '0px', cardRadius: '0px', glassBlur: '5px', glassOpacity: '0.2' },
-    royal: { accentColor: '#c41e3a', bgColor: '#1a0f0f', surfaceColor: '#2a1a1a', buttonRadius: '12px', cardRadius: '30px', glassBlur: '15px', glassOpacity: '0.08' }
+    empire: { accentColor: '#D4AF37', bgColor: '#050505', surfaceColor: '#0f0f0f', textColor: '#ffffff', textMuted: 'rgba(255, 255, 255, 0.6)', borderColor: 'rgba(212, 175, 55, 0.15)', glassBorder: 'rgba(212, 175, 55, 0.2)', buttonRadius: '4px', cardRadius: '12px', glassBlur: '20px', glassOpacity: '0.03' },
+    neon: { accentColor: '#00f2ff', bgColor: '#000814', surfaceColor: '#001d3d', textColor: '#ffffff', textMuted: 'rgba(0, 242, 255, 0.5)', borderColor: 'rgba(0, 242, 255, 0.2)', glassBorder: 'rgba(0, 242, 255, 0.3)', buttonRadius: '0px', cardRadius: '0px', glassBlur: '10px', glassOpacity: '0.1' },
+    nordic: { accentColor: '#2d3436', bgColor: '#f5f6fa', surfaceColor: '#ffffff', textColor: '#2d3436', textMuted: 'rgba(45, 52, 54, 0.6)', borderColor: 'rgba(0, 0, 0, 0.05)', glassBorder: 'rgba(0, 0, 0, 0.1)', buttonRadius: '25px', cardRadius: '20px', glassBlur: '40px', glassOpacity: '0.05' },
+    royal: { accentColor: '#e84118', bgColor: '#192a56', surfaceColor: '#273c75', textColor: '#ffffff', textMuted: 'rgba(255, 255, 255, 0.7)', borderColor: 'rgba(232, 65, 24, 0.3)', glassBorder: 'rgba(232, 65, 24, 0.4)', buttonRadius: '8px', cardRadius: '16px', glassBlur: '25px', glassOpacity: '0.08' }
   };
 
   const applyThemePrompt = (prompt) => {
@@ -167,15 +167,20 @@ function App() {
   useEffect(() => { localStorage.setItem('luxe-products', JSON.stringify(products)); }, [products]);
   useEffect(() => {
     localStorage.setItem('luxe-settings', JSON.stringify(siteSettings));
-    document.documentElement.style.setProperty('--accent-color', siteSettings.accentColor);
-    document.documentElement.style.setProperty('--bg-color', siteSettings.bgColor);
-    document.documentElement.style.setProperty('--surface-color', siteSettings.surfaceColor);
-    document.documentElement.style.setProperty('--font-main', siteSettings.fontFamily);
-    document.documentElement.style.setProperty('--btn-radius', siteSettings.buttonRadius);
-    document.documentElement.style.setProperty('--card-radius', siteSettings.cardRadius);
-    document.documentElement.style.setProperty('--glass-blur', siteSettings.glassBlur);
-    document.documentElement.style.setProperty('--glass-opacity', siteSettings.glassOpacity);
-    document.documentElement.style.setProperty('--font-scale', siteSettings.fontScale);
+    const root = document.documentElement.style;
+    root.setProperty('--accent-color', siteSettings.accentColor);
+    root.setProperty('--bg-color', siteSettings.bgColor);
+    root.setProperty('--surface-color', siteSettings.surfaceColor);
+    root.setProperty('--font-main', siteSettings.fontFamily);
+    root.setProperty('--btn-radius', siteSettings.buttonRadius);
+    root.setProperty('--card-radius', siteSettings.cardRadius);
+    root.setProperty('--glass-blur', siteSettings.glassBlur);
+    root.setProperty('--glass-opacity', siteSettings.glassOpacity);
+    root.setProperty('--text-color', siteSettings.textColor);
+    root.setProperty('--text-muted', siteSettings.textMuted);
+    root.setProperty('--border-color', siteSettings.borderColor);
+    root.setProperty('--glass-border', siteSettings.glassBorder);
+    document.body.style.fontSize = siteSettings.fontScale;
   }, [siteSettings]);
   useEffect(() => { localStorage.setItem('luxe-orders', JSON.stringify(orders)); }, [orders]);
   useEffect(() => { localStorage.setItem('luxe-user', JSON.stringify(currentUser)); }, [currentUser]);
@@ -427,19 +432,38 @@ function App() {
                     </div>
 
                     <div className="glass-panel" style={{ padding: '30px' }}>
+                      <h3 className="gold-text" style={{ marginBottom: '25px' }}>UNIVERSAL COLOR SUITE</h3>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '20px' }}>
+                        {[
+                          { label: 'ACCENT', key: 'accentColor' },
+                          { label: 'BACKGROUND', key: 'bgColor' },
+                          { label: 'SURFACE', key: 'surfaceColor' },
+                          { label: 'TEXT PRIMARY', key: 'textColor' },
+                          { label: 'TEXT MUTED', key: 'textMuted' },
+                          { label: 'BORDER GLOBAL', key: 'borderColor' },
+                          { label: 'GLASS BORDER', key: 'glassBorder' }
+                        ].map(color => (
+                          <div key={color.key}>
+                            <label style={{ fontSize: '0.6rem', opacity: 0.5, display: 'block', marginBottom: '8px' }}>{color.label}</label>
+                            <input
+                              type={color.key.includes('Muted') || color.key.includes('Border') ? 'text' : 'color'}
+                              value={siteSettings[color.key]}
+                              onChange={e => setSiteSettings({ ...siteSettings, [color.key]: e.target.value })}
+                              className="premium-input"
+                              style={{ height: color.key.includes('Muted') || color.key.includes('Border') ? '45px' : '55px', padding: '5px' }}
+                            />
+                            {(color.key.includes('Muted') || color.key.includes('Border')) && <p style={{ fontSize: '0.5rem', opacity: 0.3, marginTop: '5px' }}>Supports RGBA/HEX</p>}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="glass-panel" style={{ padding: '30px' }}>
                       <h3 className="gold-text" style={{ marginBottom: '20px' }}>LEGACY CORE PARAMETERS</h3>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px' }}>
                         <div>
                           <label style={{ fontSize: '0.6rem', opacity: 0.5 }}>LOGO TEXT</label>
                           <input value={siteSettings.logoText} onChange={e => setSiteSettings({ ...siteSettings, logoText: e.target.value })} className="premium-input" />
-                        </div>
-                        <div>
-                          <label style={{ fontSize: '0.6rem', opacity: 0.5 }}>ACCENT</label>
-                          <input type="color" value={siteSettings.accentColor} onChange={e => setSiteSettings({ ...siteSettings, accentColor: e.target.value })} className="premium-input" style={{ height: '45px', padding: '5px' }} />
-                        </div>
-                        <div>
-                          <label style={{ fontSize: '0.6rem', opacity: 0.5 }}>BACKGROUND</label>
-                          <input type="color" value={siteSettings.bgColor} onChange={e => setSiteSettings({ ...siteSettings, bgColor: e.target.value })} className="premium-input" style={{ height: '45px', padding: '5px' }} />
                         </div>
                       </div>
                     </div>
