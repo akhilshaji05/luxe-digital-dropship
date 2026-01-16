@@ -19,6 +19,7 @@ export default function handler(req, res) {
     res.setHeader('X-Pingback', `https://${req.headers.host}/xmlrpc.php`);
     res.setHeader('Link', `<https://${req.headers.host}/wp-json/>; rel="https://api.w.org/"`);
     res.setHeader('Content-Type', 'application/json; charset=UTF-8');
+    res.setHeader('X-WooCommerce-API-Version', '3');
 
     // Mock Auth Check - If they provided any key, just let them through
     // Real WooCommerce often returns 401 if keys are missing on specific actions.

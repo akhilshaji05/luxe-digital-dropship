@@ -32,6 +32,9 @@ export default function handler(req, res) {
         name: "Luxe Digital Store",
         description: "Premium E-commerce Store",
         url: `https://${req.headers.host}`,
+        home: `https://${req.headers.host}`,
+        gmt_offset: "0",
+        timezone_string: "UTC",
         namespaces: [
             "wp/v2",
             "wc/v1",
@@ -43,7 +46,18 @@ export default function handler(req, res) {
             "/": {
                 "namespace": "",
                 "methods": ["GET"],
-                "endpoints": [{ "methods": ["GET"], "args": [] }]
+                "endpoints": [{
+                    "methods": ["GET"],
+                    "args": {
+                        "context": {
+                            "default": "view",
+                            "required": false
+                        }
+                    }
+                }],
+                "_links": {
+                    "self": `https://${req.headers.host}/wp-json/`
+                }
             },
             "/wp/v2": {
                 "namespace": "wp/v2",
@@ -75,6 +89,10 @@ export default function handler(req, res) {
                 "methods": ["GET", "POST"],
                 "endpoints": [{ "methods": ["GET", "POST"], "args": [] }]
             }
+        },
+        "_links": {
+            "help": [{ "href": "https://developer.wordpress.org/rest-api/" }],
+            "self": [{ "href": `https://${req.headers.host}/wp-json/` }]
         }
     });
 }
