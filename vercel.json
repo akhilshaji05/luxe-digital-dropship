@@ -16,7 +16,23 @@
             "destination": "/api/wp-json"
         },
         {
+            "source": "/license.txt",
+            "destination": "/api/mock-wp"
+        },
+        {
+            "source": "/readme.html",
+            "destination": "/api/mock-wp"
+        },
+        {
             "source": "/wp-login.php",
+            "destination": "/api/mock-wp"
+        },
+        {
+            "source": "/wp-content/(.*)",
+            "destination": "/api/mock-wp"
+        },
+        {
+            "source": "/wp-includes/(.*)",
             "destination": "/api/mock-wp"
         },
         {
