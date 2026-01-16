@@ -140,6 +140,9 @@ function App() {
   });
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeBrand, setActiveBrand] = useState('all');
+  const [activeView, setActiveView] = useState('shop'); // For handling sub-views like 'favorites'
+  const [activeModal, setActiveModal] = useState(null); // 'help', 'signin', 'join'
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [editingProduct, setEditingProduct] = useState(null);
 
@@ -237,9 +240,10 @@ function App() {
   };
 
   const filteredProducts = products.filter(p => {
-    const matchCat = activeCategory === 'all' || p.category === activeCategory;
-    const matchSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchCat && matchSearch;
+    const matchCat = activeCategory === 'all' || p.category.toLowerCase() === activeCategory.toLowerCase();
+    const matchSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || (p.desc && p.desc.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchBrand = activeBrand === 'all' || (p.name.toLowerCase().includes(activeBrand.toLowerCase()));
+    return matchCat && matchSearch && matchBrand;
   });
 
   return (
@@ -250,14 +254,15 @@ function App() {
           {/* NIKE UTILITY BAR */}
           <div style={{ background: '#f5f5f5', padding: '0 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '36px', fontSize: '12px', color: '#111', fontWeight: '500' }}>
             <div style={{ display: 'flex', gap: '20px' }}>
-              <span style={{ cursor: 'pointer' }}>Jordan</span>
-              <span style={{ cursor: 'pointer' }}>Converse</span>
+              <span style={{ cursor: 'pointer', opacity: activeBrand === 'jordan' ? 1 : 0.6 }} onClick={() => { setActiveBrand('jordan'); setView('shop'); }}>Jordan</span>
+              <span style={{ cursor: 'pointer', opacity: activeBrand === 'converse' ? 1 : 0.6 }} onClick={() => { setActiveBrand('converse'); setView('shop'); }}>Converse</span>
+              {activeBrand !== 'all' && <span style={{ cursor: 'pointer', opacity: 0.5, fontSize: '10px' }} onClick={() => setActiveBrand('all')}>Clear</span>}
             </div>
             <div style={{ display: 'flex', gap: '15px' }}>
               <span style={{ cursor: 'pointer' }}>Find a Store</span>
-              <span style={{ cursor: 'pointer' }}>Help</span>
-              <span style={{ cursor: 'pointer' }}>Join Us</span>
-              <span style={{ cursor: 'pointer' }}>Sign In</span>
+              <span style={{ cursor: 'pointer' }} onClick={() => setActiveModal('help')}>Help</span>
+              <span style={{ cursor: 'pointer' }} onClick={() => setActiveModal('join')}>Join Us</span>
+              <span style={{ cursor: 'pointer' }} onClick={() => setActiveModal('signin')}>Sign In</span>
             </div>
           </div>
 
@@ -272,8 +277,16 @@ function App() {
             </div>
 
             <div className="nav-links" style={{ display: 'flex', gap: '25px', color: '#111', fontWeight: '600', fontSize: '15px' }}>
-              {['New & Featured', 'Men', 'Women', 'Kids', 'Sale', 'SNKRS'].map(item => (
-                <span key={item} style={{ cursor: 'pointer' }} onClick={() => setView('shop')}>{item}</span>
+              {['New & Featured', 'Men', 'Women', 'Kids', 'Sale'].map(item => (
+                <span
+                  key={item}
+                  style={{ cursor: 'pointer', borderBottom: activeCategory === item.toLowerCase() ? '2px solid #111' : 'none' }}
+                  onClick={() => {
+                    setActiveCategory(item === 'New & Featured' ? 'all' : item.toLowerCase());
+                    setView('shop');
+                    setActiveBrand('all');
+                  }}
+                >{item}</span>
               ))}
             </div>
 
@@ -290,9 +303,9 @@ function App() {
                   <Icons.Search />
                 </div>
               </div>
-              <div style={{ cursor: 'pointer', position: 'relative' }} onClick={() => setView('shop')}>
+              <div style={{ cursor: 'pointer', position: 'relative' }} onClick={() => { setActiveView(activeView === 'favorites' ? 'shop' : 'favorites'); setView('shop'); }}>
                 <Icons.Heart fill={wishlist.length > 0} />
-                {wishlist.length > 0 && <span style={{ position: 'absolute', top: '-8px', right: '-8px', background: '#111', color: '#fff', borderRadius: '50%', width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px' }}>{wishlist.length}</span>}
+                {wishlist.length > 0 && <span style={{ position: 'absolute', top: '-8px', right: '-8px', background: '#e01e5a', color: '#fff', borderRadius: '50%', width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px' }}>{wishlist.length}</span>}
               </div>
               <div style={{ position: 'relative', cursor: 'pointer' }} onClick={() => setIsCartOpen(true)}>
                 <Icons.Cart />
@@ -334,18 +347,39 @@ function App() {
                 <h1 className="gold-text" style={{ marginBottom: '40px' }}>{adminSubView.toUpperCase()}</h1>
 
                 {adminSubView === 'dashboard' && (
-                  <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '30px' }}>
-                    <div className="glass-panel" style={{ padding: '30px' }}>
-                      <div style={{ opacity: 0.5, fontSize: '0.7rem' }}>TOTAL EQUITY</div>
-                      <div className="gold-text" style={{ fontSize: '2rem' }}>${orders.reduce((a, b) => a + b.total, 0).toLocaleString()}</div>
+                  <div className="admin-content-grid" style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+                    <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '30px' }}>
+                      <div className="glass-panel" style={{ padding: '30px' }}>
+                        <div style={{ opacity: 0.5, fontSize: '0.7rem' }}>TOTAL EQUITY</div>
+                        <div className="gold-text" style={{ fontSize: '2rem' }}>${orders.reduce((a, b) => a + b.total, 0).toLocaleString()}</div>
+                      </div>
+                      <div className="glass-panel" style={{ padding: '30px' }}>
+                        <div style={{ opacity: 0.5, fontSize: '0.7rem' }}>ACQUISITIONS</div>
+                        <div className="gold-text" style={{ fontSize: '2rem' }}>{orders.length}</div>
+                      </div>
+                      <div className="glass-panel" style={{ padding: '30px' }}>
+                        <div style={{ opacity: 0.5, fontSize: '0.7rem' }}>CATALOG SIZE</div>
+                        <div className="gold-text" style={{ fontSize: '2rem' }}>{products.length}</div>
+                      </div>
                     </div>
+
                     <div className="glass-panel" style={{ padding: '30px' }}>
-                      <div style={{ opacity: 0.5, fontSize: '0.7rem' }}>ACQUISITIONS</div>
-                      <div className="gold-text" style={{ fontSize: '2rem' }}>{orders.length}</div>
-                    </div>
-                    <div className="glass-panel" style={{ padding: '30px' }}>
-                      <div style={{ opacity: 0.5, fontSize: '0.7rem' }}>CATALOG SIZE</div>
-                      <div className="gold-text" style={{ fontSize: '2rem' }}>{products.length}</div>
+                      <h3 style={{ marginBottom: '25px' }}>RECENT ACQUISITIONS</h3>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                        {orders.length === 0 ? (
+                          <div style={{ opacity: 0.5, padding: '20px', textAlign: 'center' }}>No active transactions detected in the vault.</div>
+                        ) : (
+                          orders.slice(-5).reverse().map(order => (
+                            <div key={order.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '15px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                              <div>
+                                <div style={{ fontWeight: 'bold' }}>{order.billing.fullName}</div>
+                                <div style={{ fontSize: '0.7rem', opacity: 0.5 }}>{new Date(order.id).toLocaleDateString()} • {order.items.length} Items</div>
+                              </div>
+                              <div className="gold-text" style={{ fontWeight: 'bold' }}>${order.total.toLocaleString()}</div>
+                            </div>
+                          ))
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}
@@ -598,20 +632,36 @@ function App() {
                     </div>
                   </div>
                   <div key={section.id} className="container" style={{ padding: '40px' }}>
+                    {activeView === 'favorites' && <h1 style={{ fontSize: '2rem', marginBottom: '30px', fontWeight: 'bold', color: '#111' }}>Favorites</h1>}
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '15px' }}>
-                      {filteredProducts.map(p => (
-                        <div key={p.id} className="nike-product-card" style={{ cursor: 'pointer', position: 'relative' }} onClick={() => setSelectedProduct(p)}>
-                          {siteSettings.logoText.toLowerCase().includes('nike') && <div className="nike-badge">Just In</div>}
-                          <div style={{ aspectRatio: '1/1', background: '#f5f5f5', position: 'relative', overflow: 'hidden' }}>
-                            <img src={p.image} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      {(activeView === 'favorites' ? products.filter(p => wishlist.includes(p.id)) : filteredProducts).map(p => (
+                        <div key={p.id} className="nike-product-card" style={{ cursor: 'pointer', position: 'relative' }}>
+                          <div onClick={() => setSelectedProduct(p)}>
+                            {siteSettings.logoText.toLowerCase().includes('nike') && <div className="nike-badge">Just In</div>}
+                            <div style={{ aspectRatio: '1/1', background: '#f5f5f5', position: 'relative', overflow: 'hidden' }}>
+                              <img src={p.image} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            </div>
                           </div>
-                          <div style={{ padding: '15px 0' }}>
+                          <div style={{ position: 'absolute', top: '15px', right: '15px', zIndex: 10 }}>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); toggleWishlist(p.id); }}
+                              style={{ background: 'white', border: 'none', borderRadius: '50%', width: '35px', height: '35px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 10px rgba(0,0,0,0.1)' }}
+                            >
+                              <Icons.Heart fill={wishlist.includes(p.id)} />
+                            </button>
+                          </div>
+                          <div style={{ padding: '15px 0' }} onClick={() => setSelectedProduct(p)}>
                             <div style={{ fontWeight: '600', color: '#111' }}>{p.name}</div>
                             <div style={{ fontSize: '0.85rem', color: '#757575' }}>{p.category.charAt(0).toUpperCase() + p.category.slice(1)}'s Sportswear</div>
                             <div style={{ marginTop: '10px', fontWeight: '500', color: '#111' }}>MRP : ${p.price.toLocaleString()}</div>
                           </div>
                         </div>
                       ))}
+                      {activeView === 'favorites' && wishlist.length === 0 && (
+                        <div style={{ gridColumn: 'span 3', padding: '100px 0', textAlign: 'center', color: '#757575' }}>
+                          Items added to your Favorites will be saved here.
+                        </div>
+                      )}
                     </div>
                   </div>
                 </section>
@@ -644,14 +694,14 @@ function App() {
                       <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1000" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       <div style={{ position: 'absolute', bottom: '40px', left: '40px', color: '#fff' }}>
                         <h3 style={{ fontSize: '1.2rem', marginBottom: '15px' }}>Member Product</h3>
-                        <button className="nike-pill-btn" style={{ background: '#fff', color: '#111', padding: '10px 25px', borderRadius: '30px', border: 'none', fontWeight: '600' }}>Shop</button>
+                        <button className="nike-pill-btn" onClick={() => { setActiveCategory('apparel'); setView('shop'); }} style={{ background: '#fff', color: '#111', padding: '10px 25px', borderRadius: '30px', border: 'none', fontWeight: '600' }}>Shop</button>
                       </div>
                     </div>
                     <div className="nike-featured-card" style={{ height: '700px', position: 'relative', overflow: 'hidden' }}>
                       <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=1000" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       <div style={{ position: 'absolute', bottom: '40px', left: '40px', color: '#fff' }}>
                         <h3 style={{ fontSize: '1.2rem', marginBottom: '15px' }}>Nike Training Gear</h3>
-                        <button className="nike-pill-btn" style={{ background: '#fff', color: '#111', padding: '10px 25px', borderRadius: '30px', border: 'none', fontWeight: '600' }}>Shop</button>
+                        <button className="nike-pill-btn" onClick={() => { setActiveCategory('accessories'); setView('shop'); }} style={{ background: '#fff', color: '#111', padding: '10px 25px', borderRadius: '30px', border: 'none', fontWeight: '600' }}>Shop</button>
                       </div>
                     </div>
                   </div>
@@ -822,13 +872,61 @@ function App() {
             {checkoutStep === 'cart' && <button className="premium-btn w-full" onClick={() => setCheckoutStep('billing')}>Verify Identity</button>}
             {checkoutStep === 'billing' && <button className="premium-btn w-full" onClick={() => setCheckoutStep('payment')}>Method</button>}
             {checkoutStep === 'payment' && <button className="premium-btn w-full" onClick={() => {
-              setOrders([{ id: Date.now(), total, date: new Date().toISOString() }, ...orders]);
+              const newOrder = { id: Date.now(), total, items: [...cart], billing: { ...billingDetails }, method: billingDetails.method };
+              setOrders([newOrder, ...orders]);
               setCart([]);
               setCheckoutStep('success');
             }}>Finalize</button>}
           </div>
         )}
       </div>
+
+      {activeModal && (
+        <div className="modal-overlay open" onClick={() => setActiveModal(null)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3000 }}>
+          <div className="modal-content glass-panel" onClick={e => e.stopPropagation()} style={{ maxWidth: '500px', width: '90%', padding: '40px', textAlign: 'center' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button onClick={() => setActiveModal(null)} style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#111' }}>×</button>
+            </div>
+
+            {activeModal === 'help' && (
+              <div>
+                <h2 style={{ fontSize: '1.8rem', marginBottom: '20px', color: '#111' }}>GET HELP</h2>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', textAlign: 'left' }}>
+                  <div style={{ padding: '15px', borderBottom: '1px solid #eee', cursor: 'pointer', color: '#111' }}>Dispatch & Delivery</div>
+                  <div style={{ padding: '15px', borderBottom: '1px solid #eee', cursor: 'pointer', color: '#111' }}>Returns & Refunds</div>
+                  <div style={{ padding: '15px', borderBottom: '1px solid #eee', cursor: 'pointer', color: '#111' }}>Order Tracking</div>
+                  <div style={{ padding: '15px', borderBottom: '1px solid #eee', cursor: 'pointer', color: '#111' }}>Contact Us</div>
+                </div>
+              </div>
+            )}
+
+            {(activeModal === 'signin' || activeModal === 'join') && (
+              <div>
+                <h2 style={{ fontSize: '1.4rem', fontWeight: 'bold', marginBottom: '30px', color: '#111' }}>
+                  {activeModal === 'signin' ? 'YOUR ACCOUNT FOR EVERYTHING PERFORMANCE' : 'BECOME A MEMBER'}
+                </h2>
+                <form style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                  <input placeholder="Email address" className="premium-input" style={{ background: '#f5f5f5', color: '#111' }} />
+                  <input type="password" placeholder="Password" className="premium-input" style={{ background: '#f5f5f5', color: '#111' }} />
+                  {activeModal === 'join' && <input placeholder="Full Name" className="premium-input" style={{ background: '#f5f5f5', color: '#111' }} />}
+                  <p style={{ fontSize: '0.75rem', color: '#757575', margin: '15px 0' }}>
+                    By logging in, you agree to the Privacy Policy and Terms of Use.
+                  </p>
+                  <button className="nike-pill-btn" style={{ width: '100%', height: '45px' }}>
+                    {activeModal === 'signin' ? 'SIGN IN' : 'JOIN US'}
+                  </button>
+                </form>
+                <div style={{ marginTop: '20px', fontSize: '0.8rem', color: '#757575' }}>
+                  {activeModal === 'signin' ? "Not a Member? " : "Already a Member? "}
+                  <span style={{ color: '#111', textDecoration: 'underline', cursor: 'pointer' }} onClick={() => setActiveModal(activeModal === 'signin' ? 'join' : 'signin')}>
+                    {activeModal === 'signin' ? 'Join Us.' : 'Sign In.'}
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
