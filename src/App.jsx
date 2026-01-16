@@ -98,7 +98,13 @@ function App() {
     contactHours: "Mon-Fri: 9am - 6pm PST",
     aboutStory: "Luxe Digital exists at the intersection of craftsmanship and technology.",
     mission: "To provide curated excellence in every pixel and fiber.",
-    vision: "To be the premier global vault for elite digital and physical assets."
+    vision: "To be the premier global vault for elite digital and physical assets.",
+    layout: [
+      { id: 'hero', type: 'hero', active: true },
+      { id: 'grid', type: 'product-grid', active: true },
+      { id: 'philosophy', type: 'about', active: true },
+      { id: 'contact', type: 'contact', active: true }
+    ]
   };
 
   const [siteSettings, setSiteSettings] = useState(() => {
@@ -395,6 +401,32 @@ function App() {
                     </div>
 
                     <div className="glass-panel" style={{ padding: '30px' }}>
+                      <h3 className="gold-text" style={{ marginBottom: '20px' }}>LAYOUT LAB (WIX-LIKE BUILDER)</h3>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                        {(siteSettings.layout || []).map((s, idx) => (
+                          <div key={s.id} className="glass-panel" style={{ padding: '15px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                              <span style={{ opacity: 0.3, fontSize: '0.7rem' }}>#{idx + 1}</span>
+                              <strong style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px' }}>{s.type.replace('-', ' ')}</strong>
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                              <button onClick={() => moveSection(idx, 'up')} disabled={idx === 0} style={{ opacity: idx === 0 ? 0.2 : 1 }}>↑</button>
+                              <button onClick={() => moveSection(idx, 'down')} disabled={idx === siteSettings.layout.length - 1} style={{ opacity: idx === siteSettings.layout.length - 1 ? 0.2 : 1 }}>↓</button>
+                              <button onClick={() => deleteSection(s.id)} style={{ color: '#ff4444', marginLeft: '10px' }}>×</button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div style={{ marginTop: '30px', borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
+                        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                          {['hero', 'product-grid', 'about', 'contact'].map(type => (
+                            <button key={type} onClick={() => addSection(type)} className="premium-btn" style={{ padding: '8px 15px', fontSize: '0.65rem' }}>+ {type.toUpperCase()}</button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="glass-panel" style={{ padding: '30px' }}>
                       <h3 className="gold-text" style={{ marginBottom: '20px' }}>LEGACY CORE PARAMETERS</h3>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px' }}>
                         <div>
@@ -476,40 +508,98 @@ function App() {
           </div>
         ) : (
           <div className="shop-view animate-fade">
-            <section style={{ height: '70vh', background: `url(${siteSettings.heroBg}) center/cover`, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', position: 'relative' }}>
-              <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(3px)' }} />
-              <div style={{ position: 'relative', maxWidth: '800px', padding: '0 20px' }}>
-                <h1 className="gold-text" style={{ fontSize: '4rem', fontFamily: 'var(--font-serif)', marginBottom: '20px' }}>{siteSettings.heroTitle}</h1>
-                <p style={{ fontSize: '1.2rem', opacity: 0.8 }}>{siteSettings.heroSubtitle}</p>
-                <button className="premium-btn" style={{ marginTop: '40px' }} onClick={() => document.getElementById('grid').scrollIntoView({ behavior: 'smooth' })}>Enter Curation</button>
-              </div>
-            </section>
+            {(siteSettings.layout || []).filter(s => s.active).map(section => {
+              if (section.type === 'hero') return (
+                <section key={section.id} style={{ height: '70vh', background: `url(${siteSettings.heroBg}) center/cover`, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', position: 'relative' }}>
+                  <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(3px)' }} />
+                  <div style={{ position: 'relative', maxWidth: '800px', padding: '0 20px' }}>
+                    <h1 className="gold-text" style={{ fontSize: '4rem', fontFamily: 'var(--font-serif)', marginBottom: '20px' }}>{siteSettings.heroTitle}</h1>
+                    <p style={{ fontSize: '1.2rem', opacity: 0.8 }}>{siteSettings.heroSubtitle}</p>
+                    <button className="premium-btn" style={{ marginTop: '40px' }} onClick={() => document.getElementById('product-grid')?.scrollIntoView({ behavior: 'smooth' })}>Enter Curation</button>
+                  </div>
+                </section>
+              );
 
-            <section id="grid" className="container section-padding">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
-                <h2 className="gold-text">Curated Items</h2>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  {['all', 'apparel', 'accessories', 'digital'].map(cat => (
-                    <button key={cat} onClick={() => setActiveCategory(cat)} style={{
-                      padding: '8px 16px', border: '1px solid var(--border-color)', background: activeCategory === cat ? 'var(--accent-color)' : 'transparent', color: activeCategory === cat ? '#000' : '#fff', textTransform: 'uppercase', fontSize: '0.7rem'
-                    }}>{cat}</button>
-                  ))}
-                </div>
-              </div>
-              <div className="product-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '40px' }}>
-                {filteredProducts.map(p => (
-                  <div key={p.id} className="product-card glass-panel" style={{ cursor: 'pointer' }} onClick={() => setSelectedProduct(p)}>
-                    <div style={{ height: '350px', overflow: 'hidden' }}>
-                      <img src={p.image} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    </div>
-                    <div style={{ padding: '25px', textAlign: 'center' }}>
-                      <div style={{ fontSize: '0.9rem', marginBottom: '5px' }}>{p.name}</div>
-                      <div className="gold-text" style={{ fontWeight: 'bold' }}>${p.price.toLocaleString()}</div>
+              if (section.type === 'product-grid') return (
+                <section key={section.id} id="product-grid" className="container section-padding">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
+                    <h2 className="gold-text">Curated Items</h2>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      {['all', 'apparel', 'accessories', 'digital'].map(cat => (
+                        <button key={cat} onClick={() => setActiveCategory(cat)} style={{
+                          padding: '8px 16px', border: '1px solid var(--border-color)', background: activeCategory === cat ? 'var(--accent-color)' : 'transparent', color: activeCategory === cat ? '#000' : '#fff', textTransform: 'uppercase', fontSize: '0.7rem'
+                        }}>{cat}</button>
+                      ))}
                     </div>
                   </div>
-                ))}
-              </div>
-            </section>
+                  <div className="product-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '40px' }}>
+                    {filteredProducts.map(p => (
+                      <div key={p.id} className="product-card glass-panel" style={{ cursor: 'pointer' }} onClick={() => setSelectedProduct(p)}>
+                        <div style={{ height: '350px', overflow: 'hidden' }}>
+                          <img src={p.image} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        </div>
+                        <div style={{ padding: '25px', textAlign: 'center' }}>
+                          <div style={{ fontSize: '0.9rem', marginBottom: '5px' }}>{p.name}</div>
+                          <div className="gold-text" style={{ fontWeight: 'bold' }}>${p.price.toLocaleString()}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              );
+
+              if (section.type === 'about') return (
+                <div key={section.id} className="about-view container section-padding">
+                  <h1 className="gold-text" style={{ fontSize: '3.5rem', marginBottom: '30px' }}>Our Philosophy</h1>
+                  <div className="glass-panel" style={{ padding: '50px', lineHeight: '1.8' }}>
+                    <p style={{ fontSize: '1.2rem', marginBottom: '30px' }}>{siteSettings.aboutStory}</p>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px' }}>
+                      <div>
+                        <h3 className="gold-text">Mission</h3>
+                        <p>{siteSettings.mission}</p>
+                      </div>
+                      <div>
+                        <h3 className="gold-text">Vision</h3>
+                        <p>{siteSettings.vision}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+
+              if (section.type === 'contact') return (
+                <div key={section.id} className="contact-view container section-padding">
+                  <h1 className="gold-text" style={{ fontSize: '3rem', marginBottom: '30px' }}>Concierge</h1>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '50px' }}>
+                    <div className="glass-panel" style={{ padding: '40px' }}>
+                      <h3 className="gold-text">Private Inquiry</h3>
+                      <form style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '20px' }}>
+                        <input placeholder="Your Name" className="premium-input" />
+                        <input placeholder="Secure Email" className="premium-input" />
+                        <textarea placeholder="How may we assist you?" className="premium-input" style={{ height: '150px' }} />
+                        <button className="premium-btn">Transmit Signal</button>
+                      </form>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+                      <div>
+                        <h3 className="gold-text">Headquarters</h3>
+                        <p style={{ opacity: 0.7 }}>{siteSettings.contactAddress}</p>
+                      </div>
+                      <div>
+                        <h3 className="gold-text">Direct Line</h3>
+                        <p style={{ opacity: 0.7 }}>{siteSettings.contactPhone}</p>
+                        <p style={{ opacity: 0.7 }}>{siteSettings.contactEmail}</p>
+                      </div>
+                      <div>
+                        <h3 className="gold-text">Availability</h3>
+                        <p style={{ opacity: 0.7 }}>{siteSettings.contactHours}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+              return null;
+            })}
 
             {selectedProduct && (
               <div className="modal-overlay open" onClick={() => setSelectedProduct(null)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000 }}>
@@ -535,96 +625,96 @@ function App() {
             </footer>
           </div>
         )}
+      </main>
 
-        {/* CHECKOUT SYSTEM */}
-        <div className={`cart-overlay ${isCartOpen ? 'open' : ''}`} onClick={() => { setIsCartOpen(false); setCheckoutStep('cart'); }} style={{ zIndex: 3000 }} />
-        <div className={`cart-sidebar ${isCartOpen ? 'open' : ''}`} style={{ zIndex: 3100, padding: '40px', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '40px' }}>
-            <h2 className="gold-text">{checkoutStep.toUpperCase()}</h2>
-            <button onClick={() => { setIsCartOpen(false); setCheckoutStep('cart'); }} style={{ background: 'none', border: 'none', color: '#fff' }}>CLOSE</button>
-          </div>
+      {/* CHECKOUT SYSTEM */}
+      <div className={`cart-overlay ${isCartOpen ? 'open' : ''}`} onClick={() => { setIsCartOpen(false); setCheckoutStep('cart'); }} style={{ zIndex: 3000 }} />
+      <div className={`cart-sidebar ${isCartOpen ? 'open' : ''}`} style={{ zIndex: 3100, padding: '40px', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '40px' }}>
+          <h2 className="gold-text">{checkoutStep.toUpperCase()}</h2>
+          <button onClick={() => { setIsCartOpen(false); setCheckoutStep('cart'); }} style={{ background: 'none', border: 'none', color: '#fff' }}>CLOSE</button>
+        </div>
 
-          <div style={{ flex: 1, overflowY: 'auto' }}>
-            {checkoutStep === 'cart' && (
-              <div>
-                {cart.length === 0 ? <p style={{ opacity: 0.5, textAlign: 'center', marginTop: '50px' }}>Vault is empty.</p> : (
-                  cart.map(item => (
-                    <div key={item.id} style={{ display: 'flex', gap: '15px', padding: '15px 0', borderBottom: '1px solid var(--border-color)' }}>
-                      <img src={item.image} style={{ width: '50px', height: '50px' }} />
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: '0.8rem' }}>{item.name}</div>
-                        <div className="gold-text">${item.price}</div>
-                        <div style={{ display: 'flex', gap: '10px', marginTop: '5px' }}>
-                          <button onClick={() => updateQty(item.id, -1)}>-</button>
-                          <span>{item.qty}</span>
-                          <button onClick={() => updateQty(item.id, 1)}>+</button>
-                        </div>
+        <div style={{ flex: 1, overflowY: 'auto' }}>
+          {checkoutStep === 'cart' && (
+            <div>
+              {cart.length === 0 ? <p style={{ opacity: 0.5, textAlign: 'center', marginTop: '50px' }}>Vault is empty.</p> : (
+                cart.map(item => (
+                  <div key={item.id} style={{ display: 'flex', gap: '15px', padding: '15px 0', borderBottom: '1px solid var(--border-color)' }}>
+                    <img src={item.image} style={{ width: '50px', height: '50px' }} />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: '0.8rem' }}>{item.name}</div>
+                      <div className="gold-text">${item.price}</div>
+                      <div style={{ display: 'flex', gap: '10px', marginTop: '5px' }}>
+                        <button onClick={() => updateQty(item.id, -1)}>-</button>
+                        <span>{item.qty}</span>
+                        <button onClick={() => updateQty(item.id, 1)}>+</button>
                       </div>
-                      <button onClick={() => removeFromCart(item.id)} style={{ opacity: 0.5 }}>×</button>
                     </div>
-                  ))
-                )}
-              </div>
-            )}
-
-            {checkoutStep === 'billing' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                <input placeholder="Full Legal Name" value={billingDetails.fullName} onChange={e => setBillingDetails({ ...billingDetails, fullName: e.target.value })} className="premium-input" />
-                <input placeholder="Secure Email" value={billingDetails.email} onChange={e => setBillingDetails({ ...billingDetails, email: e.target.value })} className="premium-input" />
-                <input placeholder="Fulfillment Address" value={billingDetails.address} onChange={e => setBillingDetails({ ...billingDetails, address: e.target.value })} className="premium-input" />
-              </div>
-            )}
-
-            {checkoutStep === 'payment' && (
-              <div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                  <label className={`glass-panel ${billingDetails.method === 'card' ? 'active' : ''}`} style={{ padding: '20px', cursor: 'pointer', border: billingDetails.method === 'card' ? '1px solid var(--accent-color)' : '1px solid var(--border-color)' }}>
-                    <input type="radio" checked={billingDetails.method === 'card'} onChange={() => setBillingDetails({ ...billingDetails, method: 'card' })} style={{ display: 'none' }} />
-                    Card Acquisition (Instant)
-                  </label>
-                  <label className={`glass-panel ${billingDetails.method === 'bank' ? 'active' : ''}`} style={{ padding: '20px', cursor: 'pointer', border: billingDetails.method === 'bank' ? '1px solid var(--accent-color)' : '1px solid var(--border-color)' }}>
-                    <input type="radio" checked={billingDetails.method === 'bank'} onChange={() => setBillingDetails({ ...billingDetails, method: 'bank' })} style={{ display: 'none' }} />
-                    Vault Transfer (Manual)
-                  </label>
-                </div>
-                {billingDetails.method === 'bank' && (
-                  <div style={{ marginTop: '20px', padding: '20px', border: '1px solid var(--accent-color)', background: 'rgba(212,175,55,0.1)', fontSize: '0.8rem' }}>
-                    <strong>BANK:</strong> {siteSettings.bankName}<br />
-                    <strong>ACCOUNT:</strong> {siteSettings.bankAccount}<br />
-                    <strong>HOLDER:</strong> {siteSettings.bankHolder}<br />
-                    <strong>IFSC:</strong> {siteSettings.bankIfsc}
+                    <button onClick={() => removeFromCart(item.id)} style={{ opacity: 0.5 }}>×</button>
                   </div>
-                )}
-              </div>
-            )}
+                ))
+              )}
+            </div>
+          )}
 
-            {checkoutStep === 'success' && (
-              <div style={{ textAlign: 'center', padding: '40px 0' }}>
-                <div style={{ fontSize: '3rem', marginBottom: '20px' }}>💎</div>
-                <h3 className="gold-text">ACQUISITION SUCCESS</h3>
-                <p style={{ opacity: 0.6, fontSize: '0.9rem' }}>The ledger has been updated. Your assets are being prepared.</p>
-                <button className="premium-btn" style={{ marginTop: '30px' }} onClick={() => { setIsCartOpen(false); setCheckoutStep('cart'); }}>Return</button>
-              </div>
-            )}
-          </div>
+          {checkoutStep === 'billing' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <input placeholder="Full Legal Name" value={billingDetails.fullName} onChange={e => setBillingDetails({ ...billingDetails, fullName: e.target.value })} className="premium-input" />
+              <input placeholder="Secure Email" value={billingDetails.email} onChange={e => setBillingDetails({ ...billingDetails, email: e.target.value })} className="premium-input" />
+              <input placeholder="Fulfillment Address" value={billingDetails.address} onChange={e => setBillingDetails({ ...billingDetails, address: e.target.value })} className="premium-input" />
+            </div>
+          )}
 
-          {cart.length > 0 && checkoutStep !== 'success' && (
-            <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '30px', marginTop: '30px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', fontSize: '1.2rem' }}>
-                <span>Subtotal</span>
-                <span className="gold-text">${total.toLocaleString()}</span>
+          {checkoutStep === 'payment' && (
+            <div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                <label className={`glass-panel ${billingDetails.method === 'card' ? 'active' : ''}`} style={{ padding: '20px', cursor: 'pointer', border: billingDetails.method === 'card' ? '1px solid var(--accent-color)' : '1px solid var(--border-color)' }}>
+                  <input type="radio" checked={billingDetails.method === 'card'} onChange={() => setBillingDetails({ ...billingDetails, method: 'card' })} style={{ display: 'none' }} />
+                  Card Acquisition (Instant)
+                </label>
+                <label className={`glass-panel ${billingDetails.method === 'bank' ? 'active' : ''}`} style={{ padding: '20px', cursor: 'pointer', border: billingDetails.method === 'bank' ? '1px solid var(--accent-color)' : '1px solid var(--border-color)' }}>
+                  <input type="radio" checked={billingDetails.method === 'bank'} onChange={() => setBillingDetails({ ...billingDetails, method: 'bank' })} style={{ display: 'none' }} />
+                  Vault Transfer (Manual)
+                </label>
               </div>
-              {checkoutStep === 'cart' && <button className="premium-btn w-full" onClick={() => setCheckoutStep('billing')}>Verify Identity</button>}
-              {checkoutStep === 'billing' && <button className="premium-btn w-full" onClick={() => setCheckoutStep('payment')}>Method</button>}
-              {checkoutStep === 'payment' && <button className="premium-btn w-full" onClick={() => {
-                setOrders([{ id: Date.now(), total, date: new Date().toISOString() }, ...orders]);
-                setCart([]);
-                setCheckoutStep('success');
-              }}>Finalize</button>}
+              {billingDetails.method === 'bank' && (
+                <div style={{ marginTop: '20px', padding: '20px', border: '1px solid var(--accent-color)', background: 'rgba(212,175,55,0.1)', fontSize: '0.8rem' }}>
+                  <strong>BANK:</strong> {siteSettings.bankName}<br />
+                  <strong>ACCOUNT:</strong> {siteSettings.bankAccount}<br />
+                  <strong>HOLDER:</strong> {siteSettings.bankHolder}<br />
+                  <strong>IFSC:</strong> {siteSettings.bankIfsc}
+                </div>
+              )}
+            </div>
+          )}
+
+          {checkoutStep === 'success' && (
+            <div style={{ textAlign: 'center', padding: '40px 0' }}>
+              <div style={{ fontSize: '3rem', marginBottom: '20px' }}>💎</div>
+              <h3 className="gold-text">ACQUISITION SUCCESS</h3>
+              <p style={{ opacity: 0.6, fontSize: '0.9rem' }}>The ledger has been updated. Your assets are being prepared.</p>
+              <button className="premium-btn" style={{ marginTop: '30px' }} onClick={() => { setIsCartOpen(false); setCheckoutStep('cart'); }}>Return</button>
             </div>
           )}
         </div>
-      </main>
+
+        {cart.length > 0 && checkoutStep !== 'success' && (
+          <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '30px', marginTop: '30px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', fontSize: '1.2rem' }}>
+              <span>Subtotal</span>
+              <span className="gold-text">${total.toLocaleString()}</span>
+            </div>
+            {checkoutStep === 'cart' && <button className="premium-btn w-full" onClick={() => setCheckoutStep('billing')}>Verify Identity</button>}
+            {checkoutStep === 'billing' && <button className="premium-btn w-full" onClick={() => setCheckoutStep('payment')}>Method</button>}
+            {checkoutStep === 'payment' && <button className="premium-btn w-full" onClick={() => {
+              setOrders([{ id: Date.now(), total, date: new Date().toISOString() }, ...orders]);
+              setCart([]);
+              setCheckoutStep('success');
+            }}>Finalize</button>}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
