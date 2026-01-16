@@ -18,7 +18,9 @@ export default function handler(req, res) {
     res.setHeader('X-Powered-By', 'PHP/8.2.0');
     res.setHeader('Link', `<https://${req.headers.host}/wp-json/>; rel="https://api.w.org/"`);
 
-    // Mimic WooCommerce REST API v3 Index or specific endpoints
+    // Mock Auth Check - If they provided any key, just let them through
+    // Real WooCommerce often returns 401 if keys are missing on specific actions.
+    // We'll keep it simple: everything is public for now to ensure connectivity.
     const path = req.url || '';
 
     if (path.includes('/products')) {
