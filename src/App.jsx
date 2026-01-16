@@ -142,7 +142,8 @@ function App() {
     neon: { accentColor: '#00f2ff', bgColor: '#000814', surfaceColor: '#001d3d', textColor: '#ffffff', textMuted: 'rgba(0, 242, 255, 0.5)', borderColor: 'rgba(0, 242, 255, 0.2)', glassBorder: 'rgba(0, 242, 255, 0.3)', buttonRadius: '0px', cardRadius: '0px', glassBlur: '10px', glassOpacity: '0.1' },
     nordic: { accentColor: '#2d3436', bgColor: '#f5f6fa', surfaceColor: '#ffffff', textColor: '#2d3436', textMuted: 'rgba(45, 52, 54, 0.6)', borderColor: 'rgba(0, 0, 0, 0.05)', glassBorder: 'rgba(0, 0, 0, 0.1)', buttonRadius: '25px', cardRadius: '20px', glassBlur: '40px', glassOpacity: '0.05' },
     royal: { accentColor: '#e84118', bgColor: '#192a56', surfaceColor: '#273c75', textColor: '#ffffff', textMuted: 'rgba(255, 255, 255, 0.7)', borderColor: 'rgba(232, 65, 24, 0.3)', glassBorder: 'rgba(232, 65, 24, 0.4)', buttonRadius: '8px', cardRadius: '16px', glassBlur: '25px', glassOpacity: '0.08' },
-    ajio: { accentColor: '#2c4152', bgColor: '#ffffff', surfaceColor: '#f4f4f4', textColor: '#2c4152', textMuted: 'rgba(44, 65, 82, 0.6)', borderColor: 'rgba(0, 0, 0, 0.1)', glassBorder: 'rgba(0, 0, 0, 0.1)', buttonRadius: '0px', cardRadius: '0px', glassBlur: '0px', glassOpacity: '0', fontFamily: "'Inter', sans-serif" }
+    ajio: { accentColor: '#2c4152', bgColor: '#ffffff', surfaceColor: '#f4f4f4', textColor: '#2c4152', textMuted: 'rgba(44, 65, 82, 0.6)', borderColor: 'rgba(0, 0, 0, 0.1)', glassBorder: 'rgba(0, 0, 0, 0.1)', buttonRadius: '0px', cardRadius: '0px', glassBlur: '0px', glassOpacity: '0', fontFamily: "'Inter', sans-serif" },
+    nike: { accentColor: '#111111', bgColor: '#ffffff', surfaceColor: '#f5f5f5', textColor: '#111111', textMuted: 'rgba(17, 17, 17, 0.4)', borderColor: 'rgba(17, 17, 17, 0.1)', glassBorder: 'rgba(17, 17, 17, 0.1)', buttonRadius: '40px', cardRadius: '0px', glassBlur: '0px', glassOpacity: '0', fontFamily: "'Inter', sans-serif", fontScale: '110%' }
   };
 
   const applyThemePrompt = (prompt) => {
@@ -151,6 +152,10 @@ function App() {
     if (p.includes('neon') || p.includes('cyber') || p.includes('future')) Object.assign(newSettings, THEMES.neon);
     else if (p.includes('ajio') || p.includes('fashion') || (p.includes('clean') && p.includes('white'))) {
       Object.assign(newSettings, THEMES.ajio);
+    }
+    else if (p.includes('nike') || p.includes('sport') || p.includes('performance') || p.includes('bold')) {
+      Object.assign(newSettings, THEMES.nike);
+      newSettings.logoText = "PERFORMANCE";
     }
     else if (p.includes('minimal') || p.includes('nordic')) {
       Object.assign(newSettings, THEMES.nordic);
