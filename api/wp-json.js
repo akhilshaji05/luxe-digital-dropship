@@ -16,7 +16,16 @@ export default function handler(req, res) {
 
     // Standard WordPress Headers
     res.setHeader('X-Powered-By', 'PHP/8.2.0');
+    res.setHeader('X-Pingback', `https://${req.headers.host}/xmlrpc.php`);
     res.setHeader('Link', `<https://${req.headers.host}/wp-json/>; rel="https://api.w.org/"`);
+    res.setHeader('Content-Type', 'application/json; charset=UTF-8');
+
+    // Handle Legacy ?rest_route= parameter
+    const { rest_route } = req.query;
+    if (rest_route) {
+        if (rest_route.includes('/wc/v3/products')) return res.status(200).json([]);
+        if (rest_route.includes('/wc/v3')) return res.status(200).json({ namespace: "wc/v3", routes: { "/wc/v3": { "namespace": "wc/v3" } } });
+    }
 
     // Mimic WordPress REST API Index
     res.status(200).json({

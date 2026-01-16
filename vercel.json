@@ -4,6 +4,16 @@
     "outputDirectory": "dist",
     "rewrites": [
         {
+            "source": "/",
+            "has": [
+                {
+                    "type": "query",
+                    "key": "rest_route"
+                }
+            ],
+            "destination": "/api/wp-json"
+        },
+        {
             "source": "/wc-auth/v1/authorize",
             "destination": "/api/wc-auth"
         },
