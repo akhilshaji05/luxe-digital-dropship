@@ -32,6 +32,21 @@ export default function handler(req, res) {
                 "methods": ["GET"],
                 "endpoints": [{ "methods": ["GET"], "args": [] }]
             },
+            "/wp/v2": {
+                "namespace": "wp/v2",
+                "methods": ["GET"],
+                "endpoints": [{ "methods": ["GET"], "args": [] }]
+            },
+            "/wp/v2/posts": {
+                "namespace": "wp/v2",
+                "methods": ["GET"],
+                "endpoints": [{ "methods": ["GET"], "args": [] }]
+            },
+            "/wp/v2/pages": {
+                "namespace": "wp/v2",
+                "methods": ["GET"],
+                "endpoints": [{ "methods": ["GET"], "args": [] }]
+            },
             "/wc/v3": {
                 "namespace": "wc/v3",
                 "methods": ["GET"],
