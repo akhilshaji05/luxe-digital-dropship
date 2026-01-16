@@ -35,6 +35,12 @@ const Icons = {
   ),
   Menu: () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" x2="20" y1="12" y2="12" /><line x1="4" x2="20" y1="6" y2="6" /><line x1="4" x2="20" y1="18" y2="18" /></svg>
+  ),
+  Swoosh: () => (
+    <svg viewBox="0 0 24 24" width="60" height="24" fill="currentColor"><path d="M21 8.719c.519 0 .957.192 1.314.577.358.384.537.842.537 1.373 0 .531-.179.988-.537 1.373-.357.385-.795.577-1.314.577h-11.233c-.519 0-.957-.192-1.314-.577-.358-.384-.537-.842-.537-1.373 0-.531.179-.988.537-1.373.357-.385.795-.577 1.314-.577h11.233zm-11.233-1.438h11.233c.928 0 1.716.34 2.364 1.02.648.68 1.02 1.492 1.02 2.438 0 .945-.372 1.758-1.02 2.438-.648.68-1.436 1.02-2.364 1.02h-11.233c-.928 0-1.716-.34-2.364-1.02-.648-.68-1.02-1.492-1.02-2.438 0-.945.372-1.758 1.02-2.438.648-.68 1.436-1.02 2.364-1.02zm0-1.438c-1.332 0-2.463.483-3.393 1.448-.93.966-1.395 2.126-1.395 3.482 0 1.355.465 2.516 1.395 3.481.93.966 2.061 1.448 3.393 1.448h11.233c1.332 0 2.463-.482 3.393-1.448.93-.965 1.395-2.126 1.395-3.481 0-1.356-.465-2.516-1.395-3.482-.93-.965-2.061-1.448-3.393-1.448h-11.233z" /></svg>
+  ),
+  Search: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
   )
 };
 
@@ -240,35 +246,61 @@ function App() {
     <div className="app" style={{ background: siteSettings.bgColor, color: '#fff', minHeight: '100vh', fontFamily: siteSettings.fontFamily }}>
       {/* NAVBAR */}
       {view !== 'admin' && (
-        <nav className="navbar glass-panel" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000, padding: '20px 0', borderBottom: '1px solid var(--border-color)' }}>
-          <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div className="logo gold-text" onClick={() => setView('shop')} style={{ cursor: 'pointer', fontSize: '1.5rem', fontWeight: 'bold', letterSpacing: '2px' }}>{siteSettings.logoText}</div>
+        <header className="nike-header animate-slide-down" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000, background: '#fff' }}>
+          {/* NIKE UTILITY BAR */}
+          <div style={{ background: '#f5f5f5', padding: '0 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '36px', fontSize: '12px', color: '#111', fontWeight: '500' }}>
+            <div style={{ display: 'flex', gap: '20px' }}>
+              <span style={{ cursor: 'pointer' }}>Jordan</span>
+              <span style={{ cursor: 'pointer' }}>Converse</span>
+            </div>
+            <div style={{ display: 'flex', gap: '15px' }}>
+              <span style={{ cursor: 'pointer' }}>Find a Store</span>
+              <span style={{ cursor: 'pointer' }}>Help</span>
+              <span style={{ cursor: 'pointer' }}>Join Us</span>
+              <span style={{ cursor: 'pointer' }}>Sign In</span>
+            </div>
+          </div>
 
-            <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-              <div className={`nav-links ${isMobileMenuOpen ? 'open' : ''}`} style={{
-                display: 'flex', gap: '30px', alignItems: 'center'
-              }}>
-                {['shop', 'about', 'track', 'contact'].map(v => (
-                  <button key={v} onClick={() => { setView(v); setIsMobileMenuOpen(false); }} className="nav-link-btn" style={{
-                    textTransform: 'uppercase', letterSpacing: '1px', fontSize: '0.75rem'
-                  }}>{v === 'shop' ? 'Collection' : v === 'about' ? 'Philosophy' : v === 'track' ? 'Tracking' : 'Concierge'}</button>
-                ))}
-                <button onClick={() => { setView('admin'); setIsMobileMenuOpen(false); }} className="admin-link-btn" style={{ color: 'var(--accent-color)', border: '1px solid var(--accent-color)', padding: '5px 12px', borderRadius: '2px', fontSize: '0.7rem' }}>Vault</button>
-              </div>
+          {/* PRIMARY NIKE NAV */}
+          <div style={{ background: '#fff', padding: '0 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '60px' }}>
+            <div className="logo" onClick={() => setView('shop')} style={{ cursor: 'pointer', color: '#111', display: 'flex', alignItems: 'center' }}>
+              {siteSettings.logoText.toLowerCase().includes('nike') ? (
+                <Icons.Swoosh />
+              ) : (
+                <span style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{siteSettings.logoText}</span>
+              )}
+            </div>
 
-              <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-                <div onClick={() => setIsCartOpen(true)} style={{ cursor: 'pointer', position: 'relative' }}>
-                  <Icons.Cart />
-                  {cart.length > 0 && <span style={{ position: 'absolute', top: '-10px', right: '-10px', background: 'var(--accent-color)', color: '#000', borderRadius: '50%', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem', fontWeight: 'bold' }}>{cart.length}</span>}
+            <div className="nav-links" style={{ display: 'flex', gap: '25px', color: '#111', fontWeight: '600', fontSize: '15px' }}>
+              {['New & Featured', 'Men', 'Women', 'Kids', 'Sale', 'SNKRS'].map(item => (
+                <span key={item} style={{ cursor: 'pointer' }} onClick={() => setView('shop')}>{item}</span>
+              ))}
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+              <div style={{ position: 'relative' }}>
+                <input
+                  placeholder="Search"
+                  className="nike-search-input"
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  style={{ background: '#f5f5f5', border: 'none', borderRadius: '30px', padding: '8px 40px 8px 40px', width: '150px', color: '#111' }}
+                />
+                <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', opacity: 0.8, color: '#111' }}>
+                  <Icons.Search />
                 </div>
-                {/* Mobile Menu Toggle */}
-                <button className="mobile-menu-toggle" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} style={{ display: 'none', color: '#fff' }}>
-                  <Icons.Menu />
-                </button>
+              </div>
+              <div style={{ cursor: 'pointer', position: 'relative' }} onClick={() => setView('shop')}>
+                <Icons.Heart fill={wishlist.length > 0} />
+                {wishlist.length > 0 && <span style={{ position: 'absolute', top: '-8px', right: '-8px', background: '#111', color: '#fff', borderRadius: '50%', width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px' }}>{wishlist.length}</span>}
+              </div>
+              <div style={{ position: 'relative', cursor: 'pointer' }} onClick={() => setIsCartOpen(true)}>
+                <Icons.Cart />
+                {cart.length > 0 && <span style={{ position: 'absolute', top: '-8px', right: '-8px', background: '#111', color: '#fff', borderRadius: '50%', width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px' }}>{cart.length}</span>}
               </div>
             </div>
           </div>
-        </nav>
+        </header>
       )}
 
       <main style={{ paddingTop: view === 'admin' ? 0 : '80px' }}>
@@ -433,7 +465,7 @@ function App() {
                       </div>
                       <div style={{ marginTop: '30px', borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
                         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                          {['hero', 'product-grid', 'about', 'contact'].map(type => (
+                          {['hero', 'product-grid', 'featured-2-col', 'category-slider', 'about', 'contact'].map(type => (
                             <button key={type} onClick={() => addSection(type)} className="premium-btn" style={{ padding: '8px 15px', fontSize: '0.65rem' }}>+ {type.toUpperCase()}</button>
                           ))}
                         </div>
@@ -565,18 +597,22 @@ function App() {
                       ))}
                     </div>
                   </div>
-                  <div className="product-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '40px' }}>
-                    {filteredProducts.map(p => (
-                      <div key={p.id} className="product-card glass-panel" style={{ cursor: 'pointer' }} onClick={() => setSelectedProduct(p)}>
-                        <div style={{ height: '350px', overflow: 'hidden' }}>
-                          <img src={p.image} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <div key={section.id} className="container" style={{ padding: '40px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '15px' }}>
+                      {filteredProducts.map(p => (
+                        <div key={p.id} className="nike-product-card" style={{ cursor: 'pointer', position: 'relative' }} onClick={() => setSelectedProduct(p)}>
+                          {siteSettings.logoText.toLowerCase().includes('nike') && <div className="nike-badge">Just In</div>}
+                          <div style={{ aspectRatio: '1/1', background: '#f5f5f5', position: 'relative', overflow: 'hidden' }}>
+                            <img src={p.image} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          </div>
+                          <div style={{ padding: '15px 0' }}>
+                            <div style={{ fontWeight: '600', color: '#111' }}>{p.name}</div>
+                            <div style={{ fontSize: '0.85rem', color: '#757575' }}>{p.category.charAt(0).toUpperCase() + p.category.slice(1)}'s Sportswear</div>
+                            <div style={{ marginTop: '10px', fontWeight: '500', color: '#111' }}>MRP : ${p.price.toLocaleString()}</div>
+                          </div>
                         </div>
-                        <div style={{ padding: '25px', textAlign: 'center' }}>
-                          <div style={{ fontSize: '0.9rem', marginBottom: '5px' }}>{p.name}</div>
-                          <div className="gold-text" style={{ fontWeight: 'bold' }}>${p.price.toLocaleString()}</div>
-                        </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 </section>
               );
@@ -596,6 +632,51 @@ function App() {
                         <p>{siteSettings.vision}</p>
                       </div>
                     </div>
+                  </div>
+                </div>
+              );
+
+              if (section.type === 'featured-2-col') return (
+                <div key={section.id} className="container" style={{ padding: '80px 40px' }}>
+                  <h2 style={{ fontSize: '1.5rem', marginBottom: '30px', fontWeight: '600', color: '#111' }}>Featured</h2>
+                  <div className="nike-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                    <div className="nike-featured-card" style={{ height: '700px', position: 'relative', overflow: 'hidden' }}>
+                      <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1000" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <div style={{ position: 'absolute', bottom: '40px', left: '40px', color: '#fff' }}>
+                        <h3 style={{ fontSize: '1.2rem', marginBottom: '15px' }}>Member Product</h3>
+                        <button className="nike-pill-btn" style={{ background: '#fff', color: '#111', padding: '10px 25px', borderRadius: '30px', border: 'none', fontWeight: '600' }}>Shop</button>
+                      </div>
+                    </div>
+                    <div className="nike-featured-card" style={{ height: '700px', position: 'relative', overflow: 'hidden' }}>
+                      <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=1000" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <div style={{ position: 'absolute', bottom: '40px', left: '40px', color: '#fff' }}>
+                        <h3 style={{ fontSize: '1.2rem', marginBottom: '15px' }}>Nike Training Gear</h3>
+                        <button className="nike-pill-btn" style={{ background: '#fff', color: '#111', padding: '10px 25px', borderRadius: '30px', border: 'none', fontWeight: '600' }}>Shop</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+
+              if (section.type === 'category-slider') return (
+                <div key={section.id} className="container" style={{ padding: '80px 40px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: '600', color: '#111' }}>Shop by Category</h2>
+                  </div>
+                  <div style={{ display: 'flex', gap: '20px', overflowX: 'auto', paddingBottom: '20px' }}>
+                    {[
+                      { name: 'Lifestyle', img: 'https://images.unsplash.com/photo-1552346154-21d328109a27?q=80&w=500' },
+                      { name: 'Running', img: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=500' },
+                      { name: 'Training', img: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=500' },
+                      { name: 'Football', img: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=500' }
+                    ].map(cat => (
+                      <div key={cat.name} style={{ minWidth: '300px', flex: 1 }}>
+                        <div style={{ height: '400px', background: '#f5f5f5', marginBottom: '15px', overflow: 'hidden' }}>
+                          <img src={cat.img} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        </div>
+                        <div style={{ fontWeight: '500', color: '#111' }}>{cat.name}</div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               );
