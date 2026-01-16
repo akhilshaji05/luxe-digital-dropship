@@ -144,6 +144,9 @@ function App() {
   const [activeView, setActiveView] = useState('shop'); // For handling sub-views like 'favorites'
   const [activeModal, setActiveModal] = useState(null); // 'help', 'signin', 'join'
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [showUtility, setShowUtility] = useState(true);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [lastScrollY, setLastScrollY] = useState(0);
   const [editingProduct, setEditingProduct] = useState(null);
 
   const THEMES = {
@@ -206,6 +209,28 @@ function App() {
   useEffect(() => { localStorage.setItem('luxe-customers', JSON.stringify(customers)); }, [customers]);
   useEffect(() => { localStorage.setItem('luxe-admin-users', JSON.stringify(adminUsers)); }, [adminUsers]);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      setIsScrolled(currentScrollY > 50);
+      if (currentScrollY > lastScrollY && currentScrollY > 100) setShowUtility(false);
+      else setShowUtility(true);
+      setLastScrollY(currentScrollY);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.animate-on-scroll, .stagger-item').forEach(el => observer.observe(el));
+    return () => observer.disconnect();
+  }, [view, activeCategory, products, activeBrand]);
+
   const handleAdminLogin = (e) => {
     e.preventDefault();
     const user = adminUsers.find(u => u.username === adminUsername && u.password === adminPassword);
@@ -250,9 +275,9 @@ function App() {
     <div className="app" style={{ background: siteSettings.bgColor, color: '#fff', minHeight: '100vh', fontFamily: siteSettings.fontFamily }}>
       {/* NAVBAR */}
       {view !== 'admin' && (
-        <header className="nike-header animate-slide-down" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000, background: '#fff' }}>
+        <header className="nike-header animate-slide-down" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000, background: '#fff', transform: showUtility ? 'translateY(0)' : 'translateY(-36px)', transition: 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)' }}>
           {/* NIKE UTILITY BAR */}
-          <div style={{ background: '#f5f5f5', padding: '0 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '36px', fontSize: '12px', color: '#111', fontWeight: '500' }}>
+          <div className={`nike-utility-bar ${!showUtility ? 'hidden' : ''}`} style={{ background: '#f5f5f5', padding: '0 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '36px', fontSize: '12px', color: '#111', fontWeight: '500', opacity: showUtility ? 1 : 0, transition: 'opacity 0.3s ease' }}>
             <div style={{ display: 'flex', gap: '20px' }}>
               <span style={{ cursor: 'pointer', opacity: activeBrand === 'jordan' ? 1 : 0.6 }} onClick={() => { setActiveBrand('jordan'); setView('shop'); }}>Jordan</span>
               <span style={{ cursor: 'pointer', opacity: activeBrand === 'converse' ? 1 : 0.6 }} onClick={() => { setActiveBrand('converse'); setView('shop'); }}>Converse</span>
@@ -267,7 +292,7 @@ function App() {
           </div>
 
           {/* PRIMARY NIKE NAV */}
-          <div style={{ background: '#fff', padding: '0 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '60px' }}>
+          <div className={`nike-primary-nav ${isScrolled ? 'sticky' : ''}`} style={{ background: '#fff', padding: '0 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '60px', borderBottom: isScrolled ? '1px solid #e5e5e5' : 'none' }}>
             <div className="logo" onClick={() => setView('shop')} style={{ cursor: 'pointer', color: '#111', display: 'flex', alignItems: 'center' }}>
               {siteSettings.logoText.toLowerCase().includes('nike') ? (
                 <Icons.Swoosh />
@@ -280,7 +305,7 @@ function App() {
               {['New & Featured', 'Men', 'Women', 'Kids', 'Sale'].map(item => (
                 <span
                   key={item}
-                  style={{ cursor: 'pointer', borderBottom: activeCategory === item.toLowerCase() ? '2px solid #111' : 'none' }}
+                  style={{ cursor: 'pointer', borderBottom: activeCategory === item.toLowerCase() ? '2px solid #111' : 'none', padding: '20px 0' }}
                   onClick={() => {
                     setActiveCategory(item === 'New & Featured' ? 'all' : item.toLowerCase());
                     setView('shop');
@@ -611,7 +636,7 @@ function App() {
               if (section.type === 'hero') return (
                 <section key={section.id} style={{ height: '70vh', background: `url(${siteSettings.heroBg}) center/cover`, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', position: 'relative' }}>
                   <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(3px)' }} />
-                  <div style={{ position: 'relative', maxWidth: '800px', padding: '0 20px' }}>
+                  <div className="animate-on-scroll" style={{ position: 'relative', maxWidth: '800px', padding: '0 20px' }}>
                     <h1 className="gold-text" style={{ fontSize: '4rem', fontFamily: 'var(--font-serif)', marginBottom: '20px' }}>{siteSettings.heroTitle}</h1>
                     <p style={{ fontSize: '1.2rem', opacity: 0.8 }}>{siteSettings.heroSubtitle}</p>
                     <button className="premium-btn" style={{ marginTop: '40px' }} onClick={() => document.getElementById('product-grid')?.scrollIntoView({ behavior: 'smooth' })}>Enter Curation</button>
@@ -620,7 +645,7 @@ function App() {
               );
 
               if (section.type === 'product-grid') return (
-                <section key={section.id} id="product-grid" className="container section-padding">
+                <section key={section.id} id="product-grid" className="container section-padding animate-on-scroll">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
                     <h2 className="gold-text">Curated Items</h2>
                     <div style={{ display: 'flex', gap: '10px' }}>
@@ -631,16 +656,14 @@ function App() {
                       ))}
                     </div>
                   </div>
-                  <div key={section.id} className="container" style={{ padding: '40px' }}>
+                  <div className="container" style={{ padding: '40px' }}>
                     {activeView === 'favorites' && <h1 style={{ fontSize: '2rem', marginBottom: '30px', fontWeight: 'bold', color: '#111' }}>Favorites</h1>}
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '15px' }}>
-                      {(activeView === 'favorites' ? products.filter(p => wishlist.includes(p.id)) : filteredProducts).map(p => (
-                        <div key={p.id} className="nike-product-card" style={{ cursor: 'pointer', position: 'relative' }}>
-                          <div onClick={() => setSelectedProduct(p)}>
+                      {(activeView === 'favorites' ? products.filter(p => wishlist.includes(p.id)) : filteredProducts).map((p, idx) => (
+                        <div key={p.id} className="nike-product-card stagger-item" style={{ cursor: 'pointer', position: 'relative', transitionDelay: `${idx * 0.05}s` }}>
+                          <div className="image-container" onClick={() => setSelectedProduct(p)} style={{ aspectRatio: '1/1', background: '#f5f5f5', position: 'relative', overflow: 'hidden' }}>
+                            <img src={p.image} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             {siteSettings.logoText.toLowerCase().includes('nike') && <div className="nike-badge">Just In</div>}
-                            <div style={{ aspectRatio: '1/1', background: '#f5f5f5', position: 'relative', overflow: 'hidden' }}>
-                              <img src={p.image} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            </div>
                           </div>
                           <div style={{ position: 'absolute', top: '15px', right: '15px', zIndex: 10 }}>
                             <button
@@ -650,7 +673,7 @@ function App() {
                               <Icons.Heart fill={wishlist.includes(p.id)} />
                             </button>
                           </div>
-                          <div style={{ padding: '15px 0' }} onClick={() => setSelectedProduct(p)}>
+                          <div className="card-info" style={{ padding: '15px 0' }} onClick={() => setSelectedProduct(p)}>
                             <div style={{ fontWeight: '600', color: '#111' }}>{p.name}</div>
                             <div style={{ fontSize: '0.85rem', color: '#757575' }}>{p.category.charAt(0).toUpperCase() + p.category.slice(1)}'s Sportswear</div>
                             <div style={{ marginTop: '10px', fontWeight: '500', color: '#111' }}>MRP : ${p.price.toLocaleString()}</div>
@@ -668,7 +691,7 @@ function App() {
               );
 
               if (section.type === 'about') return (
-                <div key={section.id} className="about-view container section-padding">
+                <div key={section.id} className="about-view container section-padding animate-on-scroll">
                   <h1 className="gold-text" style={{ fontSize: '3.5rem', marginBottom: '30px' }}>Our Philosophy</h1>
                   <div className="glass-panel" style={{ padding: '50px', lineHeight: '1.8' }}>
                     <p style={{ fontSize: '1.2rem', marginBottom: '30px' }}>{siteSettings.aboutStory}</p>
@@ -687,7 +710,7 @@ function App() {
               );
 
               if (section.type === 'featured-2-col') return (
-                <div key={section.id} className="container" style={{ padding: '80px 40px' }}>
+                <div key={section.id} className="container animate-on-scroll" style={{ padding: '80px 40px' }}>
                   <h2 style={{ fontSize: '1.5rem', marginBottom: '30px', fontWeight: '600', color: '#111' }}>Featured</h2>
                   <div className="nike-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                     <div className="nike-featured-card" style={{ height: '700px', position: 'relative', overflow: 'hidden' }}>
@@ -709,7 +732,7 @@ function App() {
               );
 
               if (section.type === 'category-slider') return (
-                <div key={section.id} className="container" style={{ padding: '80px 40px' }}>
+                <div key={section.id} className="container animate-on-scroll" style={{ padding: '80px 40px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
                     <h2 style={{ fontSize: '1.5rem', fontWeight: '600', color: '#111' }}>Shop by Category</h2>
                   </div>
@@ -732,7 +755,7 @@ function App() {
               );
 
               if (section.type === 'contact') return (
-                <div key={section.id} className="contact-view container section-padding">
+                <div key={section.id} className="contact-view container section-padding animate-on-scroll">
                   <h1 className="gold-text" style={{ fontSize: '3rem', marginBottom: '30px' }}>Concierge</h1>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '50px' }}>
                     <div className="glass-panel" style={{ padding: '40px' }}>
