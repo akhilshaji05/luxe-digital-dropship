@@ -14,6 +14,12 @@ export default function handler(req, res) {
         return res.status(200).send(`<?xml version="1.0" encoding="UTF-8"?><methodResponse><params><param><value><string>XML-RPC server accepts POST requests only.</string></value></param></params></methodResponse>`);
     }
 
+    // Windows Live Writer Manifest
+    if (url.includes('wlwmanifest.xml')) {
+        res.setHeader('Content-Type', 'text/xml');
+        return res.status(200).send(`<?xml version="1.0" encoding="UTF-8"?><wlwmanifest xmlns="http://schemas.microsoft.com/wlw/manifest/weblog"><engine><name>WordPress</name><link>https://wordpress.org/</link><version>6.7.2</version></engine></wlwmanifest>`);
+    }
+
     if (url.endsWith('.css')) res.setHeader('Content-Type', 'text/css');
     else if (url.endsWith('.js')) res.setHeader('Content-Type', 'application/javascript');
     else res.setHeader('Content-Type', 'text/html');
