@@ -55,6 +55,16 @@ export default function handler(req, res) {
                 "namespace": "wc/v3",
                 "methods": ["GET"],
                 "endpoints": [{ "methods": ["GET"], "args": [] }]
+            },
+            "/wc/v3/products": {
+                "namespace": "wc/v3",
+                "methods": ["GET", "POST"],
+                "endpoints": [{ "methods": ["GET", "POST"], "args": [] }]
+            },
+            "/wc/v3/orders": {
+                "namespace": "wc/v3",
+                "methods": ["GET", "POST"],
+                "endpoints": [{ "methods": ["GET", "POST"], "args": [] }]
             }
         }
     });

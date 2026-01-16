@@ -2,18 +2,34 @@
 export default function handler(req, res) {
     const { callback_url, return_url } = req.query;
 
-    // In a real WooCommerce app, this would show a "Approve" button.
-    // We'll just redirect to the callback_url with mock keys.
+    // Standard WooCommerce OAuth v1/v3 flow for HTTPS callbacks expects a POST request.
+    // We'll use an auto-submitting HTML form to simulate this.
     if (callback_url) {
-        const mockKeysUrl = new URL(callback_url);
-        mockKeysUrl.searchParams.append('consumer_key', 'ck_luxe_digital_mock_key_12345');
-        mockKeysUrl.searchParams.append('consumer_secret', 'cs_luxe_digital_mock_secret_67890');
-        mockKeysUrl.searchParams.append('key_id', '1');
-        mockKeysUrl.searchParams.append('user_id', '1');
+        const isHttps = callback_url.startsWith('https');
 
-        // Some implementations expect a POST or a specific format, 
-        // but often they just want a redirect back to their processing script.
-        return res.redirect(mockKeysUrl.toString());
+        if (isHttps) {
+            return res.status(200).send(`
+        <html>
+          <body onload="document.forms[0].submit()">
+            <form method="post" action="${callback_url}">
+              <input type="hidden" name="consumer_key" value="ck_luxe_mock_${Date.now()}" />
+              <input type="hidden" name="consumer_secret" value="cs_luxe_mock_${Date.now()}" />
+              <input type="hidden" name="key_id" value="1" />
+              <input type="hidden" name="user_id" value="1" />
+              <input type="hidden" name="success" value="1" />
+            </form>
+            <p>Connecting to Qikink... Please wait.</p>
+          </body>
+        </html>
+      `);
+        } else {
+            const mockKeysUrl = new URL(callback_url);
+            mockKeysUrl.searchParams.append('consumer_key', `ck_luxe_mock_${Date.now()}`);
+            mockKeysUrl.searchParams.append('consumer_secret', `cs_luxe_mock_${Date.now()}`);
+            mockKeysUrl.searchParams.append('key_id', '1');
+            mockKeysUrl.searchParams.append('user_id', '1');
+            return res.redirect(mockKeysUrl.toString());
+        }
     }
 
     if (return_url) {
