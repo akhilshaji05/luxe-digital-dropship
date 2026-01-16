@@ -14,6 +14,10 @@ export default function handler(req, res) {
         return;
     }
 
+    // Standard WordPress Headers
+    res.setHeader('X-Powered-By', 'PHP/8.2.0');
+    res.setHeader('Link', `<https://${req.headers.host}/wp-json/>; rel="https://api.w.org/"`);
+
     // Mimic WooCommerce REST API v3 Index or specific endpoints
     const path = req.url || '';
 

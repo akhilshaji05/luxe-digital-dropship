@@ -12,6 +12,14 @@
             "destination": "/api/wp-json"
         },
         {
+            "source": "/wp-login.php",
+            "destination": "/api/mock-wp"
+        },
+        {
+            "source": "/xmlrpc.php",
+            "destination": "/api/mock-wp"
+        },
+        {
             "source": "/(.*)",
             "destination": "/index.html"
         }
