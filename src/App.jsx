@@ -301,17 +301,60 @@ function App() {
                 )}
 
                 {adminSubView === 'settings' && (
-                  <div className="glass-panel" style={{ padding: '30px' }}>
-                    <h3 className="gold-text" style={{ marginBottom: '30px' }}>FINANCIAL PARAMETERS</h3>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                      {['bankName', 'bankAccount', 'bankHolder', 'bankIfsc'].map(key => (
-                        <div key={key}>
-                          <label style={{ fontSize: '0.6rem', opacity: 0.5 }}>{key.toUpperCase()}</label>
-                          <input value={siteSettings[key]} onChange={e => setSiteSettings({ ...siteSettings, [key]: e.target.value })} className="premium-input" />
+                  <div className="glass-panel" style={{ padding: '30px', display: 'flex', flexDirection: 'column', gap: '40px' }}>
+                    <section>
+                      <h3 className="gold-text" style={{ marginBottom: '20px' }}>BRANDING & DESIGN</h3>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                        <div>
+                          <label style={{ fontSize: '0.6rem', opacity: 0.5 }}>LOGO TEXT</label>
+                          <input value={siteSettings.logoText} onChange={e => setSiteSettings({ ...siteSettings, logoText: e.target.value })} className="premium-input" />
                         </div>
-                      ))}
-                    </div>
-                    <button onClick={() => alert("System parameters updated")} className="premium-btn" style={{ marginTop: '30px' }}>Apply Changes</button>
+                        <div>
+                          <label style={{ fontSize: '0.6rem', opacity: 0.5 }}>ACCENT COLOR</label>
+                          <input type="color" value={siteSettings.accentColor} onChange={e => setSiteSettings({ ...siteSettings, accentColor: e.target.value })} className="premium-input" style={{ height: '50px', padding: '5px' }} />
+                        </div>
+                        <div>
+                          <label style={{ fontSize: '0.6rem', opacity: 0.5 }}>BACKGROUND</label>
+                          <input type="color" value={siteSettings.bgColor} onChange={e => setSiteSettings({ ...siteSettings, bgColor: e.target.value })} className="premium-input" style={{ height: '50px', padding: '5px' }} />
+                        </div>
+                        <div>
+                          <label style={{ fontSize: '0.6rem', opacity: 0.5 }}>SURFACE</label>
+                          <input type="color" value={siteSettings.surfaceColor} onChange={e => setSiteSettings({ ...siteSettings, surfaceColor: e.target.value })} className="premium-input" style={{ height: '50px', padding: '5px' }} />
+                        </div>
+                      </div>
+                    </section>
+
+                    <section>
+                      <h3 className="gold-text" style={{ marginBottom: '20px' }}>HERO SECTION</h3>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                        <input value={siteSettings.heroTitle} onChange={e => setSiteSettings({ ...siteSettings, heroTitle: e.target.value })} placeholder="Main Headline" className="premium-input" />
+                        <textarea value={siteSettings.heroSubtitle} onChange={e => setSiteSettings({ ...siteSettings, heroSubtitle: e.target.value })} placeholder="Sub-headline" className="premium-input" />
+                        <input value={siteSettings.heroBg} onChange={e => setSiteSettings({ ...siteSettings, heroBg: e.target.value })} placeholder="Background Image URI" className="premium-input" />
+                      </div>
+                    </section>
+
+                    <section>
+                      <h3 className="gold-text" style={{ marginBottom: '20px' }}>FINANCIAL PARAMETERS</h3>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                        {['bankName', 'bankAccount', 'bankHolder', 'bankIfsc'].map(key => (
+                          <div key={key}>
+                            <label style={{ fontSize: '0.6rem', opacity: 0.5 }}>{key.toUpperCase()}</label>
+                            <input value={siteSettings[key]} onChange={e => setSiteSettings({ ...siteSettings, [key]: e.target.value })} className="premium-input" />
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+
+                    <section>
+                      <h3 className="gold-text" style={{ marginBottom: '20px' }}>CONCIERGE & PHILOSOPHY</h3>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                        <input value={siteSettings.contactEmail} onChange={e => setSiteSettings({ ...siteSettings, contactEmail: e.target.value })} placeholder="Contact Email" className="premium-input" />
+                        <input value={siteSettings.contactPhone} onChange={e => setSiteSettings({ ...siteSettings, contactPhone: e.target.value })} placeholder="Contact Phone" className="premium-input" />
+                        <textarea value={siteSettings.aboutStory} onChange={e => setSiteSettings({ ...siteSettings, aboutStory: e.target.value })} placeholder="Our Story" className="premium-input" style={{ gridColumn: 'span 2' }} />
+                      </div>
+                    </section>
+
+                    <button onClick={() => alert("Global parameters synchronized")} className="premium-btn">Synchronize System</button>
                   </div>
                 )}
               </main>
